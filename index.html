@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>👾 Task — UUC</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#0f172a; --bg2:#1e293b; --bg3:#334155; --border:#475569;
+      --text:#f1f5f9; --text2:#94a3b8; --accent:#eab308; --accent2:#ca8a04;
+      --red:#ef4444; --green:#22c55e; --blue:#3b82f6; --orange:#f97316; --purple:#a855f7;
+      --radius:8px; --radius-lg:12px; --shadow:0 4px 24px rgba(0,0,0,.4); --tr:.18s ease;
+    }
+    html,body { height:100%; }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; line-height:1.5; overflow-x:hidden; }
+    #root { height:100%; }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg2); }
+    ::-webkit-scrollbar-thumb { background:var(--bg3); border-radius:3px; }
+    .flex{display:flex;} .col{flex-direction:column;} .gap4{gap:4px;} .gap8{gap:8px;} .gap12{gap:12px;} .gap16{gap:16px;}
+    .wrap{flex-wrap:wrap;} .center{align-items:center;} .between{justify-content:space-between;} .end{justify-content:flex-end;}
+    .grow{flex:1;} .hidden{display:none!important;} .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .t-xs{font-size:11px;} .t-sm{font-size:12px;} .t-md{font-size:14px;} .t-lg{font-size:16px;} .t-xl{font-size:20px;} .t-2xl{font-size:24px;}
+    .bold{font-weight:600;} .muted{color:var(--text2);} .accent{color:var(--accent);} .red{color:var(--red);} .green{color:var(--green);} .blue{color:var(--blue);}
+    button { cursor:pointer; border:none; border-radius:var(--radius); font-size:13px; font-weight:500; transition:var(--tr); display:inline-flex; align-items:center; gap:6px; }
+    button:disabled { opacity:.4; cursor:not-allowed; }
+    .btn-primary{background:var(--accent);color:#000;padding:8px 16px;}
+    .btn-primary:hover:not(:disabled){background:var(--accent2);}
+    .btn-secondary{background:var(--bg3);color:var(--text);padding:8px 16px;}
+    .btn-secondary:hover:not(:disabled){background:var(--border);}
+    .btn-ghost{background:transparent;color:var(--text2);padding:6px 10px;}
+    .btn-ghost:hover:not(:disabled){background:var(--bg3);color:var(--text);}
+    .btn-danger{background:var(--red);color:#fff;padding:8px 16px;}
+    .btn-danger:hover:not(:disabled){background:#dc2626;}
+    .btn-icon{background:transparent;color:var(--text2);padding:6px;border-radius:var(--radius);}
+    .btn-icon:hover{background:var(--bg3);color:var(--text);}
+    .btn-sm{padding:5px 10px;font-size:12px;}
+    input,textarea,select { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:13px; padding:8px 10px; width:100%; outline:none; transition:border-color var(--tr); font-family:inherit; }
+    input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+    input::placeholder,textarea::placeholder{color:var(--text2);}
+    select option{background:var(--bg2);}
+    textarea{resize:vertical;min-height:72px;}
+    input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5);}
+    label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}
+    .field{display:flex;flex-direction:column;gap:4px;}
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+    .card-sm{padding:12px;}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+    .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;}
+    .modal-lg{max-width:720px;}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .modal-title{font-size:18px;font-weight:600;}
+    .modal-close{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:var(--radius);line-height:1;}
+    .modal-close:hover{background:var(--bg3);color:var(--text);}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .badge-yellow{background:rgba(234,179,8,.15);color:#fbbf24;}
+    .badge-blue{background:rgba(59,130,246,.15);color:#60a5fa;}
+    .badge-green{background:rgba(34,197,94,.15);color:#4ade80;}
+    .badge-red{background:rgba(239,68,68,.15);color:#f87171;}
+    .badge-gray{background:rgba(71,85,105,.4);color:var(--text2);}
+    .badge-purple{background:rgba(168,85,247,.15);color:#c084fc;}
+    #toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;}
+    .toast{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 20px;font-size:13px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;animation:slideUp .2s ease;min-width:260px;max-width:420px;}
+    .toast-undo button{background:var(--accent);color:#000;padding:4px 10px;font-size:12px;border-radius:6px;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .spinner{width:20px;height:20px;border:2px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
+    .spinner-lg{width:36px;height:36px;border-width:3px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+    .app-shell{display:flex;flex-direction:column;height:100vh;}
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px;}
+    .topbar-logo{font-size:18px;font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:8px;}
+    .topbar-nav{display:flex;align-items:center;gap:4px;}
+    .nav-tab{background:transparent;border:none;color:var(--text2);padding:6px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;transition:var(--tr);}
+    .nav-tab:hover{background:var(--bg3);color:var(--text);}
+    .nav-tab.active{background:var(--bg3);color:var(--accent);}
+    .topbar-right{display:flex;align-items:center;gap:8px;}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;}
+    .main-content{flex:1;overflow-y:auto;padding:20px;}
+    .board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+    .board-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .filter-chip{background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:4px 12px;font-size:12px;cursor:pointer;transition:var(--tr);color:var(--text2);white-space:nowrap;}
+    .filter-chip:hover{border-color:var(--accent);color:var(--text);}
+    .filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(234,179,8,.08);}
+    .board-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start;}
+    .board-col{display:flex;flex-direction:column;gap:10px;}
+    .col-header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px;}
+    .col-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+    .col-count{background:var(--bg3);color:var(--text2);border-radius:100px;padding:1px 8px;font-size:11px;}
+    .task-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:border-color var(--tr),transform var(--tr);position:relative;overflow:hidden;}
+    .task-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+    .task-card.pinned{border-color:rgba(234,179,8,.4);}
+    .task-card .pin-glow{position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+    .task-card .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+    .task-card .card-title{font-size:14px;font-weight:600;line-height:1.4;}
+    .task-card .card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
+    .task-card .card-folio{font-size:10px;color:var(--text2);font-family:monospace;}
+    .card-due{font-size:11px;display:flex;align-items:center;gap:3px;}
+    .due-ok{color:var(--text2);} .due-soon{color:var(--accent);} .due-overdue{color:var(--red);}
+    .read-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .read-dot.read{background:var(--green);} .read-dot.unread{background:var(--red);}
+    .subtask-progress{margin-top:8px;display:flex;align-items:center;gap:8px;}
+    .progress-bar{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--green);border-radius:2px;transition:.3s;}
+    .tag{display:inline-flex;align-items:center;background:rgba(71,85,105,.5);border-radius:100px;padding:1px 7px;font-size:10px;color:var(--text2);gap:4px;}
+    .tag-remove{cursor:pointer;opacity:.6;} .tag-remove:hover{opacity:1;}
+    .detail-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+    .comment-list{display:flex;flex-direction:column;gap:12px;}
+    .comment-item{display:flex;gap:10px;}
+    .comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;}
+    .comment-body{flex:1;}
+    .comment-header{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+    .comment-author{font-size:12px;font-weight:600;}
+    .comment-time{font-size:11px;color:var(--text2);}
+    .comment-text{font-size:13px;line-height:1.5;}
+    .comment-mention{color:var(--accent);font-weight:600;}
+    .bitacora-item{display:flex;gap:10px;font-size:12px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);}
+    .bitacora-time{flex-shrink:0;font-family:monospace;font-size:11px;}
+    .subtask-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius);margin-bottom:6px;}
+    .subtask-item.cancelled{opacity:.5;text-decoration:line-through;}
+    .subtask-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .onboarding-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;padding:20px;}
+    .onboarding-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:480px;}
+    .maintenance-screen{position:fixed;inset:0;background:rgba(15,23,42,.97);display:flex;align-items:center;justify-content:center;z-index:600;flex-direction:column;gap:16px;text-align:center;padding:20px;}
+    .announcement-banner{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+    .stat-value{font-size:28px;font-weight:700;}
+    .stat-label{font-size:12px;color:var(--text2);margin-top:2px;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+    .cal-day{aspect-ratio:1;background:var(--bg3);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;position:relative;cursor:pointer;}
+    .cal-day.today{border:1px solid var(--accent);}
+    .cal-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;position:absolute;bottom:4px;}
+    .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px;}
+    .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;width:100%;max-width:400px;}
+    .auth-logo{text-align:center;font-size:32px;margin-bottom:8px;}
+    .auth-title{text-align:center;font-size:22px;font-weight:700;margin-bottom:4px;}
+    .auth-sub{text-align:center;color:var(--text2);font-size:13px;margin-bottom:24px;}
+    @keyframes pinPulse{0%{box-shadow:0 0 0 0 rgba(234,179,8,.6);}70%{box-shadow:0 0 0 8px rgba(234,179,8,0);}100%{box-shadow:0 0 0 0 rgba(234,179,8,0);}}
+    .pulse{animation:pinPulse 2s infinite;}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    .fade-in{animation:fadeIn .2s ease;}
+    @media(max-width:640px){.topbar-nav .nav-tab span{display:none;}.board-columns{grid-template-columns:1fr;}.modal{padding:16px;}.stats-grid{grid-template-columns:repeat(2,1fr);}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+const { createClient } = supabase;
+
+const SB_URL="https://gkjrcwjvbxvjwkdbywde.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdranJjd2p2Ynh2andrZGJ5d2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDA1MDAsImV4cCI6MjA4OTY3NjUwMH0.FD05kgJO97HkOG6whY-NavcN6NlcT5LHC-Cw-PJtuwI";
+const TG_TOKEN="8659794338:AAE7_VLlua3bAiP9lBcmvQ_5OSrgmwGlAQw";
+const DOMAIN="unauncuarto.com";
+const DEPTOS=["Recursos Humanos","Procesos","Compras","Documentación","VBA / Excel","Administración","Finanzas","Dirección","Proyectos","Operaciones","Legal","IT","Maquinaria","Calidad"];
+const CKEY="uuc-cfg-v3";
+const sb=createClient(SB_URL,SB_KEY);
+
+const STATUS={
+  pendiente:{label:"Pendiente",color:"#94a3b8",badge:"badge-gray"},
+  en_curso:{label:"En curso",color:"#3b82f6",badge:"badge-blue"},
+  lista:{label:"Lista",color:"#22c55e",badge:"badge-green"},
+  bloqueada:{label:"Bloqueada",color:"#ef4444",badge:"badge-red"},
+  descartada:{label:"Descartada",color:"#6b7280",badge:"badge-gray"},
+};
+const TRANSITIONS={
+  pendiente:["en_curso","bloqueada","descartada"],
+  en_curso:["lista","bloqueada","descartada"],
+  lista:[],
+  bloqueada:["en_curso","descartada"],
+  descartada:["pendiente"],
+};
+const DEF_CFG={maintenance:false,maintenance_msg:"Sistema en mantenimiento. Regresa pronto.",categories:["Compras","Documentación","VBA / Excel","Administración","General"]};
+
+const fmt=d=>{if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"2-digit"});};
+const fmtFull=d=>{if(!d)return"";return new Date(d).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});};
+const initials=p=>{if(!p)return"?";return((p.nombre?.[0]||"")+(p.apellido?.[0]||"")).toUpperCase()||p.email?.[0]?.toUpperCase()||"?";};
+const dueCls=due=>{if(!due)return"";const diff=(new Date(due+"T23:59:59")-new Date())/86400000;if(diff<0)return"due-overdue";if(diff<2)return"due-soon";return"due-ok";};
+const dueIcon=due=>{if(!due)return null;const cls=dueCls(due);return{cls,icon:cls==="due-overdue"?"🔴":cls==="due-soon"?"🟡":"📅"};};
+const statusColor=s=>STATUS[s]?.color||"#94a3b8";
+const rolLabel=r=>({admin:"Admin",gerente:"Gerente",subordinado:"Subordinado"}[r]||r);
+
+const tgSend=async(chat_id,text)=>{if(!chat_id)return;try{await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id,text,parse_mode:"HTML"})});}catch(e){console.warn("TG",e);}};
+
+let _setToasts=null;
+const toast=(msg,type="info",undoFn=null)=>{if(_setToasts)_setToasts(prev=>[...prev,{id:Date.now(),msg,type,undoFn}]);};
+
+function ToastContainer(){
+  const[toasts,setToasts]=useState([]);
+  useEffect(()=>{_setToasts=setToasts;return()=>{_setToasts=null;};},[]);
+  useEffect(()=>{if(!toasts.length)return;const t=setTimeout(()=>setToasts(p=>p.slice(1)),5000);return()=>clearTimeout(t);},[toasts]);
+  const dismiss=id=>setToasts(p=>p.filter(t=>t.id!==id));
+  return(<div id="toast-container">{toasts.map(t=>(
+    <div key={t.id} className={`toast ${t.undoFn?"toast-undo":""}`}>
+      <span>{t.type==="error"?"❌":t.type==="success"?"✅":"ℹ️"}</span>
+      <span className="grow">{t.msg}</span>
+      {t.undoFn&&<button onClick={()=>{t.undoFn();dismiss(t.id);}}>Deshacer</button>}
+      <button className="btn-icon" onClick={()=>dismiss(t.id)}>✕</button>
+    </div>
+  ))}</div>);
+}
+
+function AuthScreen(){
+  const[mode,setMode]=useState("login");
+  const[email,setEmail]=useState("");
+  const[pass,setPass]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState("");
+  const[ok,setOk]=useState("");
+  const handle=async e=>{
+    e.preventDefault();setErr("");setOk("");setLoading(true);
+    try{
+      if(mode==="login"){const{error}=await sb.auth.signInWithPassword({email,password:pass});if(error)throw error;}
+      else if(mode==="register"){if(!email.endsWith("@"+DOMAIN))throw new Error(`Solo cuentas @${DOMAIN}`);const{error}=await sb.auth.signUp({email,password:pass});if(error)throw error;setOk("Revisa tu correo para confirmar.");setMode("login");}
+      else{const{error}=await sb.auth.resetPasswordForEmail(email);if(error)throw error;setOk("Revisa tu correo.");setMode("login");}
+    }catch(e){setErr(e.message);}finally{setLoading(false);}
+  };
+  return(
+    <div className="auth-screen"><div className="auth-card fade-in">
+      <div className="auth-logo">👾</div>
+      <div className="auth-title">Task — UUC</div>
+      <div className="auth-sub">{mode==="login"?"Inicia sesión":mode==="register"?`Regístrate con @${DOMAIN}`:"Recuperar contraseña"}</div>
+      <form onSubmit={handle} className="flex col gap12">
+        <div className="field"><label>Correo</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={`usuario@${DOMAIN}`} required/></div>
+        {mode!=="reset"&&<div className="field"><label>Contraseña</label><input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••" required minLength={6}/></div>}
+        {err&&<div className="t-sm red">{err}</div>}
+        {ok&&<div className="t-sm green">{ok}</div>}
+        <button type="submit" className="btn-primary" disabled={loading}>{loading?<span className="spinner"/>:mode==="login"?"Entrar":mode==="register"?"Crear cuenta":"Enviar correo"}</button>
+      </form>
+      <div className="flex col gap4" style={{marginTop:16}}>
+        {mode!=="login"&&<button className="btn-ghost btn-sm" onClick={()=>setMode("login")}>← Iniciar sesión</button>}
+        {mode==="login"&&<><button className="btn-ghost btn-sm" onClick={()=>setMode("register")}>Crear cuenta nueva</button><button className="btn-ghost btn-sm" onClick={()=>setMode("reset")}>Olvidé mi contraseña</button></>}
+      </div>
+    </div></div>
+  );
+}
+
+function OnboardingScreen({user,onDone}){
+  const[form,setForm]=useState({nombre:"",apellido:"",celular:"",departamento:"",puesto:"",telegram_chat_id:""});
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState("");
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{
+    if(!form.nombre||!form.apellido||!form.departamento||!form.puesto){setErr("Completa los campos obligatorios.");return;}
+    setLoading(true);
+    const{error}=await sb.from("profiles").update({...form,onboarding_done:true}).eq("id",user.id);
+    if(error){setErr(error.message);setLoading(false);return;}
+    onDone();
+  };
+  return(
+    <div className="onboarding-screen"><div className="onboarding-card fade-in">
+      <div className="flex col gap4" style={{marginBottom:24}}>
+        <div className="t-xl bold">👋 Completa tu perfil</div>
+        <div className="muted t-sm">Una vez configurado, podrás usar la plataforma.</div>
+      </div>
+      <div className="flex col gap12">
+        <div className="flex gap8">
+          <div className="field grow"><label>Nombre *</label><input value={form.nombre} onChange={e=>set("nombre",e.target.value)} placeholder="Juan"/></div>
+          <div className="field grow"><label>Apellido *</label><input value={form.apellido} onChange={e=>set("apellido",e.target.value)} placeholder="Pérez"/></div>
+        </div>
+        <div className="field"><label>Departamento *</label><select value={form.departamento} onChange={e=>set("departamento",e.target.value)}><option value="">Selecciona...</option>{DEPTOS.map(d=><option key={d} value={d}>{d}</option>)}</select></div>
+        <div className="field"><label>Puesto *</label><input value={form.puesto} onChange={e=>set("puesto",e.target.value)} placeholder="Ej: Coordinador de Compras"/></div>
+        <div className="field"><label>Celular</label><input value={form.celular} onChange={e=>set("celular",e.target.value)} placeholder="55 1234 5678"/></div>
+        <div className="field"><label>Telegram Chat ID</label><input value={form.telegram_chat_id} onChange={e=>set("telegram_chat_id",e.target.value)} placeholder="@userinfobot"/></div>
+        {err&&<div className="t-sm red">{err}</div>}
+        <button className="btn-primary" onClick={save} disabled={loading}>{loading?<span className="spinner"/>:"Guardar y continuar →"}</button>
+      </div>
+    </div></div>
+  );
+}
+
+function MaintenanceScreen({msg,isAdmin,onDisable}){
+  return(<div className="maintenance-screen"><div style={{fontSize:48}}>🔧</div><div className="t-2xl bold">Modo Mantenimiento</div><div className="muted" style={{maxWidth:360}}>{msg}</div>{isAdmin&&<button className="btn-primary" onClick={onDisable}>Desactivar mantenimiento</button>}</div>);
+}
+
+function ProfileMenu({profile,onClose,onLogout,onEditProfile}){
+  return(
+    <div className="overlay" onClick={onClose}><div className="modal" style={{maxWidth:320,marginTop:"auto",marginBottom:20}} onClick={e=>e.stopPropagation()}>
+      <div className="flex center gap12" style={{marginBottom:16}}>
+        <div className="avatar" style={{width:48,height:48,fontSize:18}}>{initials(profile)}</div>
+        <div><div className="bold">{profile.nombre} {profile.apellido}</div><div className="muted t-sm">{profile.email}</div>
+          <div className="flex gap4" style={{marginTop:4}}><span className="badge badge-yellow">{rolLabel(profile.role)}</span>{profile.departamento&&<span className="badge badge-gray">{profile.departamento}</span>}</div>
+        </div>
+      </div>
+      <hr className="divider"/>
+      <div className="flex col gap8">
+        <button className="btn-ghost" style={{justifyContent:"flex-start"}} onClick={onEditProfile}>✏️ Editar perfil</button>
+        <button className="btn-ghost" style={{justifyContent:"flex-start"}} onClick={onLogout}>🚪 Cerrar sesión</button>
+      </div>
+    </div></div>
+  );
+}
+
+function EditProfileModal({profile,onClose,onSaved}){
+  const[form,setForm]=useState({nombre:profile.nombre||"",apellido:profile.apellido||"",celular:profile.celular||"",departamento:profile.departamento||"",puesto:profile.puesto||"",telegram_chat_id:profile.telegram_chat_id||""});
+  const[loading,setLoading]=useState(false);
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{setLoading(true);const{error}=await sb.from("profiles").update(form).eq("id",profile.id);setLoading(false);if(error){toast(error.message,"error");return;}toast("Perfil actualizado","success");onSaved(form);onClose();};
+  return(
+    <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-header"><span className="modal-title">Editar perfil</span><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="flex col gap12">
+        <div className="flex gap8">
+          <div className="field grow"><label>Nombre</label><input value={form.nombre} onChange={e=>set("nombre",e.target.value)}/></div>
+          <div className="field grow"><label>Apellido</label><input value={form.apellido} onChange={e=>set("apellido",e.target.value)}/></div>
+        </div>
+        <div className="field"><label>Departamento</label><select value={form.departamento} onChange={e=>set("departamento",e.target.value)}><option value="">Selecciona...</option>{DEPTOS.map(d=><option key={d} value={d}>{d}</option>)}</select></div>
+        <div className="field"><label>Puesto</label><input value={form.puesto} onChange={e=>set("puesto",e.target.value)}/></div>
+        <div className="field"><label>Celular</label><input value={form.celular} onChange={e=>set("celular",e.target.value)}/></div>
+        <div className="field"><label>Telegram Chat ID</label><input value={form.telegram_chat_id} onChange={e=>set("telegram_chat_id",e.target.value)}/></div>
+        <div className="flex gap8 end"><button className="btn-secondary" onClick={onClose}>Cancelar</button><button className="btn-primary" onClick={save} disabled={loading}>{loading?<span className="spinner"/>:"Guardar"}</button></div>
+      </div>
+    </div></div>
+  );
+}
+
+function TagInput({tags,onChange}){
+  const[val,setVal]=useState("");
+  const add=()=>{const t=val.trim().toLowerCase();if(t&&!tags.includes(t))onChange([...tags,t]);setVal("");};
+  const remove=t=>onChange(tags.filter(x=>x!==t));
+  return(
+    <div>
+      <div className="flex wrap gap4" style={{marginBottom:6}}>{tags.map(t=><span key={t} className="tag">#{t} <span className="tag-remove" onClick={()=>remove(t)}>✕</span></span>)}</div>
+      <div className="flex gap8"><input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"||e.key===","){e.preventDefault();add();}}} placeholder="Escribe y Enter"/><button className="btn-secondary btn-sm" style={{flexShrink:0}} onClick={add}>+</button></div>
+    </div>
+  );
+}
+
+function TaskCard({task,profile,allProfiles,onClick}){
+  const st=STATUS[task.status]||STATUS.pendiente;
+  const due=task.due_date?dueIcon(task.due_date):null;
+  const subtotalDone=(task.subtasks||[]).filter(s=>s.status==="lista"||s.status==="descartada").length;
+  const subtotalAll=(task.subtasks||[]).length;
+  const progress=subtotalAll>0?Math.round((subtotalDone/subtotalAll)*100):null;
+  const showReadDot=(profile.role==="admin"||profile.role==="gerente")&&task.owner_id!==profile.id;
+  return(
+    <div className={`task-card fade-in ${task.is_pinned?"pinned":""}`} onClick={()=>onClick(task)}>
+      {task.is_pinned&&<div className="pin-glow pulse"/>}
+      <div className="card-top">
+        <div className="flex col gap4 grow"><div style={{fontFamily:"monospace",fontSize:10,color:"var(--text2)"}}>{task.folio||""}</div><div className="card-title">{task.title}</div></div>
+        <div className="flex col center gap4" style={{flexShrink:0}}>
+          <span className={`badge ${st.badge}`}>{st.label}</span>
+          {showReadDot&&<div className={`read-dot ${task.read_by_assignee?"read":"unread"}`} title={task.read_by_assignee?"Visto":"No visto"}/>}
+        </div>
+      </div>
+      <div className="card-meta">
+        {due&&<span className={`card-due ${due.cls}`}>{due.icon} {fmt(task.due_date)}</span>}
+        {task.category&&<span className="badge badge-gray t-xs">{task.category}</span>}
+        {(task.tags||[]).slice(0,2).map(t=><span key={t} className="tag">#{t}</span>)}
+        {(task.tags||[]).length>2&&<span className="muted t-xs">+{task.tags.length-2}</span>}
+      </div>
+      {progress!==null&&<div className="subtask-progress"><div className="progress-bar"><div className="progress-fill" style={{width:progress+"%"}}/></div><span className="t-xs muted">{subtotalDone}/{subtotalAll}</span></div>}
+    </div>
+  );
+}
+
+function TaskFormModal({task,profile,allProfiles,cfg,onClose,onSaved}){
+  const isEdit=!!task;
+  const[form,setForm]=useState({title:task?.title||"",description:task?.description||"",due_date:task?.due_date||"",category:task?.category||"",tags:task?.tags||[],is_pinned:task?.is_pinned||false,block_on_subtasks:task?.block_on_subtasks??false});
+  const[loading,setLoading]=useState(false);
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{
+    if(!form.title.trim()){toast("El título es obligatorio","error");return;}
+    setLoading(true);let error;
+    if(isEdit){({error}=await sb.from("tasks").update({...form}).eq("id",task.id));if(!error)await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"editó la tarea",detail:form.title});}
+    else{({error}=await sb.from("tasks").insert({...form,owner_id:profile.id,status:"pendiente"}));}
+    setLoading(false);if(error){toast(error.message,"error");return;}
+    toast(isEdit?"Tarea actualizada ✓":"Tarea creada ✓","success");onSaved();onClose();
+  };
+  const cats=cfg?.categories||DEF_CFG.categories;
+  return(
+    <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-header"><span className="modal-title">{isEdit?"Editar tarea":"Nueva tarea"}</span><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="flex col gap12">
+        <div className="field"><label>Título *</label><input value={form.title} onChange={e=>set("title",e.target.value)} placeholder="¿Qué hay que hacer?"/></div>
+        <div className="field"><label>Descripción</label><textarea value={form.description} onChange={e=>set("description",e.target.value)} placeholder="Detalles, contexto..."/></div>
+        <div className="flex gap8">
+          <div className="field grow"><label>Fecha límite</label><input type="date" value={form.due_date} onChange={e=>set("due_date",e.target.value)}/></div>
+          <div className="field grow"><label>Categoría</label><select value={form.category} onChange={e=>set("category",e.target.value)}><option value="">Sin categoría</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
+        </div>
+        <div className="field"><label>Tags</label><TagInput tags={form.tags} onChange={v=>set("tags",v)}/></div>
+        <div className="flex gap16">
+          <label className="flex center gap8" style={{cursor:"pointer",marginBottom:0}}><input type="checkbox" checked={form.is_pinned} onChange={e=>set("is_pinned",e.target.checked)} style={{width:"auto"}}/><span>📌 Fijar</span></label>
+          {(profile.role==="admin"||profile.role==="gerente")&&<label className="flex center gap8" style={{cursor:"pointer",marginBottom:0}}><input type="checkbox" checked={form.block_on_subtasks} onChange={e=>set("block_on_subtasks",e.target.checked)} style={{width:"auto"}}/><span>⛔ Bloquear si hay subtareas pendientes</span></label>}
+        </div>
+        <div className="flex gap8 end" style={{marginTop:4}}>
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary" onClick={save} disabled={loading}>{loading?<span className="spinner"/>:isEdit?"Guardar cambios":"Crear tarea"}</button>
+        </div>
+      </div>
+    </div></div>
+  );
+}
+
+function ShareModal({task,profile,allProfiles,onClose,onSaved}){
+  const canAssign=profile.role==="admin"||profile.role==="gerente";
+  const[mode,setMode]=useState(canAssign?"assign":"share");
+  const[selectedUser,setSelectedUser]=useState("");
+  const[dueDate,setDueDate]=useState("");
+  const[note,setNote]=useState("");
+  const[loading,setLoading]=useState(false);
+  const users=Object.values(allProfiles).filter(p=>p.id!==profile.id);
+  const submit=async()=>{
+    if(!selectedUser){toast("Selecciona un usuario","error");return;}
+    setLoading(true);const target=allProfiles[selectedUser];
+    if(mode==="assign"){
+      const{error}=await sb.from("tasks").insert({title:task.title+" (subtarea)",description:note||task.description,owner_id:selectedUser,parent_id:task.id,due_date:dueDate||task.due_date,status:"pendiente",category:task.category,tags:task.tags,is_subtask:true});
+      if(!error){
+        await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"asignó subtarea a",detail:`${target?.nombre} ${target?.apellido}`});
+        if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,`📋 <b>Nueva subtarea asignada</b>\n\n<b>${task.folio}</b> — ${task.title}\nAsignada por: ${profile.nombre} ${profile.apellido}${dueDate?"\nFecha límite: "+fmt(dueDate):""}${note?"\nNota: "+note:""}`);
+        toast(`Subtarea asignada a ${target?.nombre}`,"success");
+      }else toast(error.message,"error");
+    }else{
+      const{error}=await sb.from("task_shares").insert({task_id:task.id,shared_by:profile.id,shared_with:selectedUser,note});
+      if(!error){
+        if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,`🔗 <b>Tarea compartida contigo</b>\n\n<b>${task.folio}</b> — ${task.title}\nCompartida por: ${profile.nombre} ${profile.apellido}${note?"\nContexto: "+note:""}`);
+        toast(`Tarea compartida con ${target?.nombre}`,"success");
+      }else toast(error.message,"error");
+    }
+    setLoading(false);onSaved();onClose();
+  };
+  return(
+    <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-header"><span className="modal-title">Asignar / Compartir</span><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="card card-sm" style={{marginBottom:16,background:"var(--bg3)"}}><div className="t-sm bold">{task.folio} — {task.title}</div>{task.due_date&&<div className="t-xs muted">📅 {fmt(task.due_date)}</div>}</div>
+      {canAssign&&<div className="flex gap8" style={{marginBottom:16}}><button className={`btn-sm ${mode==="assign"?"btn-primary":"btn-secondary"}`} onClick={()=>setMode("assign")}>⬇️ Asignar subtarea</button><button className={`btn-sm ${mode==="share"?"btn-primary":"btn-secondary"}`} onClick={()=>setMode("share")}>🔗 Compartir</button></div>}
+      <div className="flex col gap12">
+        <div className="field"><label>{mode==="assign"?"Asignar a *":"Compartir con *"}</label><select value={selectedUser} onChange={e=>setSelectedUser(e.target.value)}><option value="">Selecciona usuario...</option>{users.map(u=><option key={u.id} value={u.id}>{u.nombre} {u.apellido} — {u.departamento}</option>)}</select></div>
+        {mode==="assign"&&<div className="field"><label>Fecha límite</label><input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)}/></div>}
+        <div className="field"><label>{mode==="assign"?"Instrucciones":"Nota"}</label><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={mode==="assign"?"¿Qué debe hacer?":"¿Por qué compartes esto?"}/></div>
+        <div className="flex gap8 end"><button className="btn-secondary" onClick={onClose}>Cancelar</button><button className="btn-primary" onClick={submit} disabled={loading}>{loading?<span className="spinner"/>:mode==="assign"?"Asignar":"Compartir"}</button></div>
+      </div>
+    </div></div>
+  );
+}
+
+function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShare}){
+  const[tab,setTab]=useState("detail");
+  const[comments,setComments]=useState([]);
+  const[bitacora,setBitacora]=useState([]);
+  const[subtasks,setSubtasks]=useState([]);
+  const[newComment,setNewComment]=useState("");
+  const[loadingCmt,setLoadingCmt]=useState(false);
+  const[confirmStatus,setConfirmStatus]=useState(null);
+  const isOwner=task.owner_id===profile.id;
+  const isAdmin=profile.role==="admin";
+  const isGerente=profile.role==="gerente"||isAdmin;
+  const canEdit=isOwner||isAdmin;
+
+  useEffect(()=>{
+    if(!isOwner&&task.id)sb.from("tasks").update({read_by_assignee:true}).eq("id",task.id).then(()=>{});
+    sb.from("comments").select("*").eq("task_id",task.id).order("created_at").then(({data})=>setComments(data||[]));
+    sb.from("bitacora").select("*").eq("task_id",task.id).order("created_at",{ascending:false}).then(({data})=>setBitacora(data||[]));
+    sb.from("tasks").select("*").eq("parent_id",task.id).order("created_at").then(({data})=>setSubtasks(data||[]));
+    const ch=sb.channel("cmt-"+task.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"comments",filter:`task_id=eq.${task.id}`},p=>setComments(prev=>[...prev,p.new])).subscribe();
+    return()=>sb.removeChannel(ch);
+  },[task.id]);
+
+  const sendComment=async()=>{
+    if(!newComment.trim())return;setLoadingCmt(true);
+    const text=newComment.trim();
+    const{error}=await sb.from("comments").insert({task_id:task.id,user_id:profile.id,content:text});
+    if(!error){
+      setNewComment("");
+      const mentions=[...text.matchAll(/@(\w+)/g)].map(m=>m[1].toLowerCase());
+      for(const m of mentions){const target=Object.values(allProfiles).find(p=>p.nombre?.toLowerCase()===m||p.apellido?.toLowerCase()===m);if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,`💬 <b>Te mencionaron</b>\n\nTarea: ${task.folio} — ${task.title}\nPor: ${profile.nombre} ${profile.apellido}\n"${text}"`);}
+    }
+    setLoadingCmt(false);
+  };
+
+  const renderComment=text=>text.split(/(@\w+)/g).map((p,i)=>p.startsWith("@")?<span key={i} className="comment-mention">{p}</span>:p);
+
+  const doStatusChange=async newStatus=>{
+    if(task.block_on_subtasks&&newStatus==="lista"){const pending=subtasks.filter(s=>s.status!=="lista"&&s.status!=="descartada");if(pending.length>0){setConfirmStatus({status:newStatus,warning:`⚠️ Hay ${pending.length} subtarea(s) incompleta(s). ¿Avanzar de todas formas?`});return;}}
+    await applyStatusChange(newStatus);
+  };
+
+  const applyStatusChange=async newStatus=>{
+    setConfirmStatus(null);
+    const updates={status:newStatus};
+    if(newStatus==="en_curso"&&!task.started_at)updates.started_at=new Date().toISOString();
+    if(newStatus==="lista")updates.completed_at=new Date().toISOString();
+    const{error}=await sb.from("tasks").update(updates).eq("id",task.id);
+    if(error){toast(error.message,"error");return;}
+    await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"cambió estado a",detail:STATUS[newStatus]?.label});
+    if(task.parent_id&&task.is_subtask){const{data:parent}=await sb.from("tasks").select("owner_id,folio,title").eq("id",task.parent_id).single();if(parent){const po=allProfiles[parent.owner_id];if(po?.telegram_chat_id)await tgSend(po.telegram_chat_id,`📊 <b>Subtarea actualizada</b>\n\nPadre: ${parent.folio} — ${parent.title}\nSubtarea: ${task.title}\nEstado: ${STATUS[newStatus]?.label}\nPor: ${profile.nombre} ${profile.apellido}`);}}
+    toast(`Estado → ${STATUS[newStatus]?.label}`,"success");onSaved();
+  };
+
+  const cancelSubtask=async st=>{
+    if(!isGerente)return;
+    const{error}=await sb.from("tasks").update({status:"descartada"}).eq("id",st.id);
+    if(!error){setSubtasks(prev=>prev.map(s=>s.id===st.id?{...s,status:"descartada"}:s));await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"canceló subtarea",detail:st.title});toast("Subtarea cancelada","success");onSaved();}
+  };
+
+  const archiveTask=async()=>{if(!canEdit)return;const{error}=await sb.from("tasks").update({archived:true}).eq("id",task.id);if(!error){toast("Tarea archivada","success");onSaved();onClose();}};
+
+  const deleteTask=async()=>{
+    if(!canEdit)return;const taskCopy={...task};
+    const{error}=await sb.from("tasks").delete().eq("id",task.id);
+    if(!error){onSaved();onClose();toast("Tarea eliminada","info",async()=>{await sb.from("tasks").insert({...taskCopy,id:undefined});onSaved();toast("Tarea restaurada ✓","success");});}
+  };
+
+  const owner=allProfiles[task.owner_id];
+  const transitions=TRANSITIONS[task.status]||[];
+
+  return(
+    <div className="overlay" onClick={onClose}><div className="modal modal-lg" onClick={e=>e.stopPropagation()}>
+      <div className="modal-header">
+        <div className="flex col gap4 grow">
+          <div className="flex center gap8"><span className="muted t-sm" style={{fontFamily:"monospace"}}>{task.folio}</span>{task.is_pinned&&<span>📌</span>}{task.archived&&<span className="badge badge-gray">Archivada</span>}</div>
+          <div className="modal-title">{task.title}</div>
+        </div>
+        <button className="modal-close" onClick={onClose}>✕</button>
+      </div>
+
+      <div className="flex wrap gap8 center" style={{marginBottom:16}}>
+        <span className={`badge ${STATUS[task.status]?.badge}`} style={{fontSize:13,padding:"4px 12px"}}>● {STATUS[task.status]?.label}</span>
+        {transitions.map(s=><button key={s} className="btn-secondary btn-sm" onClick={()=>doStatusChange(s)}>→ {STATUS[s]?.label}</button>)}
+        <div style={{marginLeft:"auto"}} className="flex gap8">
+          {canEdit&&<button className="btn-ghost btn-sm" onClick={()=>onEdit(task)}>✏️ Editar</button>}
+          <button className="btn-ghost btn-sm" onClick={()=>onShare(task)}>↗️ Asignar/Compartir</button>
+          {canEdit&&!task.archived&&<button className="btn-ghost btn-sm" onClick={archiveTask}>📦 Archivar</button>}
+          {canEdit&&<button className="btn-ghost btn-sm red" onClick={deleteTask}>🗑</button>}
+        </div>
+      </div>
+
+      {confirmStatus&&(
+        <div className="card card-sm" style={{background:"rgba(239,68,68,.1)",border:"1px solid rgba(239,68,68,.3)",marginBottom:12}}>
+          <div style={{marginBottom:8}}>{confirmStatus.warning}</div>
+          <div className="flex gap8"><button className="btn-danger btn-sm" onClick={()=>applyStatusChange(confirmStatus.status)}>Avanzar de todas formas</button><button className="btn-secondary btn-sm" onClick={()=>setConfirmStatus(null)}>Cancelar</button></div>
+        </div>
+      )}
+
+      <div className="flex gap4" style={{borderBottom:"1px solid var(--border)",marginBottom:16}}>
+        {["detail","comments","bitacora"].map(t=>(
+          <button key={t} className={`nav-tab ${tab===t?"active":""}`} onClick={()=>setTab(t)}>
+            {t==="detail"?"📋 Detalle":t==="comments"?`💬 Comentarios (${comments.length})`:`📜 Bitácora (${bitacora.length})`}
+          </button>
+        ))}
+      </div>
+
+      {tab==="detail"&&(
+        <div className="flex col gap16">
+          <div className="flex gap16 wrap">
+            <div className="grow"><div className="detail-label">Descripción</div><div style={{whiteSpace:"pre-wrap",lineHeight:1.6}}>{task.description||<span className="muted">Sin descripción</span>}</div></div>
+            <div className="flex col gap12" style={{minWidth:200}}>
+              <div><div className="detail-label">Responsable</div><div className="flex center gap8"><div className="avatar" style={{width:24,height:24,fontSize:10}}>{initials(owner)}</div><span>{owner?.nombre} {owner?.apellido}</span></div></div>
+              {task.due_date&&<div><div className="detail-label">Fecha límite</div><div className={`card-due ${dueCls(task.due_date)}`}>📅 {fmt(task.due_date)}</div></div>}
+              {task.category&&<div><div className="detail-label">Categoría</div><span className="badge badge-gray">{task.category}</span></div>}
+              {(task.tags||[]).length>0&&<div><div className="detail-label">Tags</div><div className="flex wrap gap4">{task.tags.map(t=><span key={t} className="tag">#{t}</span>)}</div></div>}
+              {isGerente&&task.started_at&&<div><div className="detail-label">Inicio</div><div className="t-sm">{fmtFull(task.started_at)}</div></div>}
+              {isGerente&&task.completed_at&&<div><div className="detail-label">Completada</div><div className="t-sm">{fmtFull(task.completed_at)}</div></div>}
+            </div>
+          </div>
+          {subtasks.length>0&&(
+            <div><div className="detail-label" style={{marginBottom:8}}>Subtareas ({subtasks.length})</div>
+              {subtasks.map(st=>{const stO=allProfiles[st.owner_id];return(
+                <div key={st.id} className={`subtask-item ${st.status==="descartada"?"cancelled":""}`}>
+                  <div className="subtask-status-dot" style={{background:statusColor(st.status)}}/>
+                  <div className="grow"><div className="t-sm bold">{st.title}</div><div className="flex gap8 center"><span className="t-xs muted">{stO?.nombre} {stO?.apellido}</span>{st.due_date&&<span className={`t-xs ${dueCls(st.due_date)}`}>📅 {fmt(st.due_date)}</span>}<span className={`badge ${STATUS[st.status]?.badge} t-xs`}>{STATUS[st.status]?.label}</span></div></div>
+                  {isGerente&&st.status!=="descartada"&&st.status!=="lista"&&<button className="btn-icon t-xs" onClick={()=>cancelSubtask(st)}>✕</button>}
+                </div>
+              );})}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab==="comments"&&(
+        <div className="flex col gap16">
+          <div className="comment-list">
+            {comments.length===0&&<div className="muted t-sm">Sin comentarios aún.</div>}
+            {comments.map(c=>{const cp=allProfiles[c.user_id];return(
+              <div key={c.id} className="comment-item">
+                <div className="comment-avatar">{initials(cp)}</div>
+                <div className="comment-body">
+                  <div className="comment-header"><span className="comment-author">{cp?.nombre} {cp?.apellido}</span><span className="comment-time">{fmtFull(c.created_at)}</span></div>
+                  <div className="comment-text">{renderComment(c.content)}</div>
+                </div>
+              </div>
+            );})}
+          </div>
+          <div className="flex col gap8">
+            <textarea value={newComment} onChange={e=>setNewComment(e.target.value)} placeholder="Escribe un comentario... usa @nombre para mencionar" onKeyDown={e=>{if(e.key==="Enter"&&e.ctrlKey)sendComment();}} style={{minHeight:60}}/>
+            <div className="flex end gap8"><span className="muted t-xs">Ctrl+Enter para enviar</span><button className="btn-primary btn-sm" onClick={sendComment} disabled={loadingCmt||!newComment.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button></div>
+          </div>
+        </div>
+      )}
+
+      {tab==="bitacora"&&(
+        <div>{bitacora.length===0&&<div className="muted t-sm">Sin registros.</div>}
+          {bitacora.map(b=>{const bp=allProfiles[b.user_id];return(
+            <div key={b.id} className="bitacora-item">
+              <span className="bitacora-time">{fmtFull(b.created_at)}</span>
+              <span className="flex center gap4"><div className="avatar" style={{width:18,height:18,fontSize:8}}>{initials(bp)}</div><span className="bold">{bp?.nombre}</span><span>{b.action}</span>{b.detail&&<span className="accent">"{b.detail}"</span>}</span>
+            </div>
+          );})}
+        </div>
+      )}
+    </div></div>
+  );
+}
+
+function DashboardView({tasks,profile,allProfiles}){
+  const isGerente=profile.role==="gerente"||profile.role==="admin";
+  if(!isGerente)return<div className="muted">Solo disponible para gerentes y admins.</div>;
+  const total=tasks.length,done=tasks.filter(t=>t.status==="lista").length,
+    overdue=tasks.filter(t=>t.due_date&&dueCls(t.due_date)==="due-overdue"&&t.status!=="lista").length,
+    inProgress=tasks.filter(t=>t.status==="en_curso").length,
+    blocked=tasks.filter(t=>t.status==="bloqueada").length;
+  const byPerson={};
+  tasks.forEach(t=>{const u=t.owner_id;if(!byPerson[u])byPerson[u]={total:0,done:0,overdue:0};byPerson[u].total++;if(t.status==="lista")byPerson[u].done++;if(t.due_date&&dueCls(t.due_date)==="due-overdue"&&t.status!=="lista")byPerson[u].overdue++;});
+  const byCat={};tasks.forEach(t=>{const c=t.category||"Sin categoría";byCat[c]=(byCat[c]||0)+1;});
+  return(
+    <div className="flex col gap24 fade-in">
+      <div className="t-xl bold">📊 Dashboard</div>
+      <div className="stats-grid">
+        <div className="stat-card"><div className="stat-value">{total}</div><div className="stat-label">Total tareas</div></div>
+        <div className="stat-card"><div className="stat-value green">{done}</div><div className="stat-label">Completadas</div></div>
+        <div className="stat-card"><div className="stat-value blue">{inProgress}</div><div className="stat-label">En curso</div></div>
+        <div className="stat-card"><div className="stat-value" style={{color:"var(--accent)"}}>{overdue}</div><div className="stat-label">Vencidas</div></div>
+        <div className="stat-card"><div className="stat-value red">{blocked}</div><div className="stat-label">Bloqueadas</div></div>
+        <div className="stat-card"><div className="stat-value">{total>0?Math.round((done/total)*100):0}%</div><div className="stat-label">Completado</div></div>
+      </div>
+      <div><div className="t-lg bold" style={{marginBottom:12}}>Por persona</div>
+        <div className="flex col gap8">{Object.entries(byPerson).sort((a,b)=>b[1].total-a[1].total).map(([uid,st])=>{
+          const p=allProfiles[uid];const pct=st.total>0?Math.round((st.done/st.total)*100):0;
+          return(<div key={uid} className="card card-sm"><div className="flex center between" style={{marginBottom:6}}><div className="flex center gap8"><div className="avatar" style={{width:28,height:28,fontSize:11}}>{initials(p)}</div><span className="bold">{p?.nombre} {p?.apellido}</span><span className="muted t-sm">{p?.departamento}</span></div><div className="flex gap8 center"><span className="t-sm">{st.done}/{st.total}</span>{st.overdue>0&&<span className="badge badge-red">{st.overdue} vencidas</span>}</div></div><div className="progress-bar" style={{height:6}}><div className="progress-fill" style={{width:pct+"%"}}/></div></div>);
+        })}</div>
+      </div>
+      <div><div className="t-lg bold" style={{marginBottom:12}}>Por categoría</div>
+        <div className="flex wrap gap8">{Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,count])=>(<div key={cat} className="card card-sm flex center gap8" style={{minWidth:140}}><span className="bold t-lg">{count}</span><span className="muted t-sm">{cat}</span></div>))}</div>
+      </div>
+    </div>
+  );
+}
+
+function CalendarView({tasks,onTaskClick}){
+  const[month,setMonth]=useState(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()};});
+  const prev=()=>setMonth(p=>p.m===0?{y:p.y-1,m:11}:{y:p.y,m:p.m-1});
+  const next=()=>setMonth(p=>p.m===11?{y:p.y+1,m:0}:{y:p.y,m:p.m+1});
+  const firstDay=new Date(month.y,month.m,1).getDay(),daysInMonth=new Date(month.y,month.m+1,0).getDate();
+  const today=new Date();
+  const byDay={};tasks.forEach(t=>{if(!t.due_date)return;const d=new Date(t.due_date+"T12:00:00");if(d.getFullYear()===month.y&&d.getMonth()===month.m){const k=d.getDate();if(!byDay[k])byDay[k]=[];byDay[k].push(t);}});
+  const DAYS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const[selected,setSelected]=useState(null);
+  return(
+    <div className="flex col gap16 fade-in">
+      <div className="flex center between"><div className="t-xl bold">📅 Calendario</div><div className="flex center gap8"><button className="btn-ghost btn-sm" onClick={prev}>‹</button><span className="bold">{MONTHS[month.m]} {month.y}</span><button className="btn-ghost btn-sm" onClick={next}>›</button></div></div>
+      <div className="cal-grid">{DAYS.map(d=><div key={d} className="t-xs muted bold" style={{textAlign:"center",padding:"4px 0"}}>{d}</div>)}</div>
+      <div className="cal-grid">
+        {Array.from({length:firstDay}).map((_,i)=><div key={"e"+i}/>)}
+        {Array.from({length:daysInMonth}).map((_,i)=>{const day=i+1,dayTasks=byDay[day]||[],isToday=today.getDate()===day&&today.getMonth()===month.m&&today.getFullYear()===month.y;return(
+          <div key={day} className={`cal-day ${isToday?"today":""}`} onClick={()=>setSelected(dayTasks.length?day:null)}>
+            <span className={isToday?"accent bold":""}>{day}</span>
+            {dayTasks.length>0&&<div className="cal-dot"/>}
+          </div>
+        );})}
+      </div>
+      {selected&&byDay[selected]&&(
+        <div className="card fade-in"><div className="bold" style={{marginBottom:10}}>Tareas para el {selected}/{month.m+1}/{month.y}</div>
+          <div className="flex col gap8">{byDay[selected].map(t=>(
+            <div key={t.id} className="subtask-item" onClick={()=>onTaskClick(t)} style={{cursor:"pointer"}}>
+              <div className="subtask-status-dot" style={{background:statusColor(t.status)}}/>
+              <div className="grow"><div className="t-sm bold">{t.title}</div><span className={`badge ${STATUS[t.status]?.badge} t-xs`}>{STATUS[t.status]?.label}</span></div>
+            </div>
+          ))}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnnouncementBanner({text,onDismiss}){
+  if(!text)return null;
+  return(<div className="announcement-banner"><span style={{fontSize:18}}>📢</span><div className="grow"><div className="bold t-sm">Anuncio</div><div className="t-sm">{text}</div></div><button className="btn-icon" onClick={onDismiss}>✕</button></div>);
+}
+
+function BoardView({tasks,profile,allProfiles,cfg,onTaskClick,onNewTask,onSaved}){
+  const[filter,setFilter]=useState("all");
+  const[catFilter,setCatFilter]=useState("");
+  const[search,setSearch]=useState("");
+  const[showArchived,setShowArchived]=useState(false);
+  const cats=cfg?.categories||DEF_CFG.categories;
+  const filtered=useMemo(()=>tasks.filter(t=>{
+    if(!showArchived&&t.archived)return false;if(showArchived&&!t.archived)return false;
+    if(filter==="mine"&&t.owner_id!==profile.id)return false;if(filter==="shared"&&t.owner_id===profile.id)return false;
+    if(catFilter&&t.category!==catFilter)return false;
+    if(search){const q=search.toLowerCase();return t.title?.toLowerCase().includes(q)||t.folio?.toLowerCase().includes(q)||(t.tags||[]).some(tag=>tag.includes(q));}
+    return true;
+  }),[tasks,filter,catFilter,search,showArchived,profile.id]);
+  const byStatus=status=>[...filtered.filter(t=>t.status===status)].sort((a,b)=>{if(a.is_pinned&&!b.is_pinned)return -1;if(!a.is_pinned&&b.is_pinned)return 1;if(a.due_date&&b.due_date)return new Date(a.due_date)-new Date(b.due_date);if(a.due_date)return -1;if(b.due_date)return 1;return 0;});
+  const COLS=[{key:"pendiente"},{key:"en_curso"},{key:"lista"},{key:"bloqueada"},{key:"descartada"}];
+  return(
+    <div className="flex col gap0 fade-in">
+      <div className="board-header">
+        <div className="t-xl bold">👾 Tareas</div>
+        <div className="flex gap8 wrap center grow">
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Buscar..." style={{maxWidth:220,minWidth:140}}/>
+          <div className="board-filters">
+            {[["all","Todas"],["mine","Mis tareas"],["shared","Compartidas"]].map(([k,l])=>(
+              <button key={k} className={`filter-chip ${filter===k?"active":""}`} onClick={()=>setFilter(k)}>{l}</button>
+            ))}
+            <button className={`filter-chip ${showArchived?"active":""}`} onClick={()=>setShowArchived(p=>!p)}>📦 Archivadas</button>
+          </div>
+          <select value={catFilter} onChange={e=>setCatFilter(e.target.value)} style={{maxWidth:160}}>
+            <option value="">Todas las categorías</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        {!showArchived&&<button className="btn-primary" onClick={onNewTask}>+ Nueva tarea</button>}
+      </div>
+      <div className="board-columns">
+        {COLS.map(col=>{const colTasks=byStatus(col.key);return(
+          <div key={col.key} className="board-col">
+            <div className="col-header"><span className="col-title" style={{color:STATUS[col.key]?.color}}>{STATUS[col.key]?.label}</span><span className="col-count">{colTasks.length}</span></div>
+            {colTasks.length===0&&<div className="card card-sm muted t-sm" style={{textAlign:"center",borderStyle:"dashed"}}>Sin tareas</div>}
+            {colTasks.map(t=><TaskCard key={t.id} task={t} profile={profile} allProfiles={allProfiles} onClick={onTaskClick}/>)}
+          </div>
+        );})}
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const[session,setSession]=useState(null);
+  const[profile,setProfile]=useState(null);
+  const[allProfiles,setAllProfiles]=useState({});
+  const[tasks,setTasks]=useState([]);
+  const[cfg,setCfg]=useState(DEF_CFG);
+  const[announcement,setAnnouncement]=useState(null);
+  const[annDismissed,setAnnDismissed]=useState(false);
+  const[loading,setLoading]=useState(true);
+  const[tab,setTab]=useState("board");
+  const[showProfile,setShowProfile]=useState(false);
+  const[showEditProfile,setShowEditProfile]=useState(false);
+  const[detailTask,setDetailTask]=useState(null);
+  const[editTask,setEditTask]=useState(null);
+  const[shareTask,setShareTask]=useState(null);
+
+  useEffect(()=>{
+    sb.auth.getSession().then(({data:{session}})=>{setSession(session);if(!session)setLoading(false);});
+    const{data:{subscription}}=sb.auth.onAuthStateChange((_e,session)=>{setSession(session);if(!session){setProfile(null);setLoading(false);}});
+    return()=>subscription.unsubscribe();
+  },[]);
+
+  useEffect(()=>{if(session)loadProfile();},[session?.user?.id]);
+
+  const loadProfile=async()=>{const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();setProfile(data);setLoading(false);};
+
+  useEffect(()=>{if(!profile)return;sb.from("profiles").select("*").then(({data})=>{const map={};(data||[]).forEach(p=>{map[p.id]=p;});setAllProfiles(map);});},[profile?.id]);
+
+  useEffect(()=>{
+    if(!profile)return;
+    sb.from("app_config").select("*").eq("key",CKEY).single().then(({data})=>{if(data?.value)setCfg({...DEF_CFG,...data.value});});
+    sb.from("announcements").select("*").eq("active",true).order("created_at",{ascending:false}).limit(1).then(({data})=>{if(data?.[0])setAnnouncement(data[0].content);});
+    const ch=sb.channel("cfg").on("postgres_changes",{event:"*",schema:"public",table:"app_config"},()=>{sb.from("app_config").select("*").eq("key",CKEY).single().then(({data})=>{if(data?.value)setCfg({...DEF_CFG,...data.value});});}).subscribe();
+    return()=>sb.removeChannel(ch);
+  },[profile?.id]);
+
+  useEffect(()=>{
+    if(!profile)return;
+    loadTasks();
+    const ch=sb.channel("tasks-rt").on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>loadTasks()).subscribe();
+    return()=>sb.removeChannel(ch);
+  },[profile?.id]);
+
+  const loadTasks=async()=>{
+    const{data:own}=await sb.from("tasks").select("*").eq("owner_id",profile.id).order("created_at",{ascending:false});
+    const{data:shares}=await sb.from("task_shares").select("task_id").eq("shared_with",profile.id);
+    let sharedTasks=[];
+    if(shares?.length>0){const ids=shares.map(s=>s.task_id);const{data}=await sb.from("tasks").select("*").in("id",ids);sharedTasks=data||[];}
+    const all=[...(own||[]),...sharedTasks];
+    setTasks(all.filter((t,i,a)=>a.findIndex(x=>x.id===t.id)===i));
+  };
+
+  const disableMaintenance=async()=>{const newCfg={...cfg,maintenance:false};await sb.from("app_config").upsert({key:CKEY,value:newCfg});setCfg(newCfg);};
+  const logout=async()=>{await sb.auth.signOut();setSession(null);setProfile(null);};
+
+  const Spinner=()=><div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"var(--bg)"}}><div className="spinner spinner-lg"/></div>;
+
+  if(loading)return<Spinner/>;
+  if(!session)return<AuthScreen/>;
+  if(profile&&!profile.onboarding_done)return<OnboardingScreen user={session.user} onDone={loadProfile}/>;
+  if(cfg.maintenance&&profile?.role!=="admin")return<MaintenanceScreen msg={cfg.maintenance_msg} isAdmin={false}/>;
+  if(!profile)return<Spinner/>;
+
+  return(
+    <div className="app-shell">
+      {cfg.maintenance&&profile.role==="admin"&&<MaintenanceScreen msg={cfg.maintenance_msg} isAdmin onDisable={disableMaintenance}/>}
+      <div className="topbar">
+        <div className="topbar-logo">👾 <span>Task</span></div>
+        <div className="topbar-nav">
+          {[["board","📋","Tareas"],["dashboard","📊","Dashboard"],["calendar","📅","Calendario"]].map(([k,icon,label])=>(
+            <button key={k} className={`nav-tab ${tab===k?"active":""}`} onClick={()=>setTab(k)}>{icon} <span>{label}</span></button>
+          ))}
+        </div>
+        <div className="topbar-right"><div className="avatar" onClick={()=>setShowProfile(true)}>{initials(profile)}</div></div>
+      </div>
+      <div className="main-content">
+        {announcement&&!annDismissed&&<AnnouncementBanner text={announcement} onDismiss={()=>setAnnDismissed(true)}/>}
+        {tab==="board"&&<BoardView tasks={tasks} profile={profile} allProfiles={allProfiles} cfg={cfg} onTaskClick={t=>setDetailTask(t)} onNewTask={()=>setEditTask({})} onSaved={loadTasks}/>}
+        {tab==="dashboard"&&<DashboardView tasks={tasks} profile={profile} allProfiles={allProfiles}/>}
+        {tab==="calendar"&&<CalendarView tasks={tasks} profile={profile} allProfiles={allProfiles} onTaskClick={t=>setDetailTask(t)}/>}
+      </div>
+      {detailTask&&<TaskDetailModal task={detailTask} profile={profile} allProfiles={allProfiles} onClose={()=>setDetailTask(null)} onSaved={()=>{loadTasks();setDetailTask(null);}} onEdit={t=>{setDetailTask(null);setEditTask(t);}} onShare={t=>{setDetailTask(null);setShareTask(t);}}/>}
+      {editTask!==null&&<TaskFormModal task={Object.keys(editTask).length===0?null:editTask} profile={profile} allProfiles={allProfiles} cfg={cfg} onClose={()=>setEditTask(null)} onSaved={loadTasks}/>}
+      {shareTask&&<ShareModal task={shareTask} profile={profile} allProfiles={allProfiles} onClose={()=>setShareTask(null)} onSaved={loadTasks}/>}
+      {showProfile&&<ProfileMenu profile={profile} onClose={()=>setShowProfile(false)} onLogout={logout} onEditProfile={()=>{setShowProfile(false);setShowEditProfile(true);}}/>}
+      {showEditProfile&&<EditProfileModal profile={profile} onClose={()=>setShowEditProfile(false)} onSaved={updated=>setProfile(p=>({...p,...updated}))}/>}
+      <ToastContainer/>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
