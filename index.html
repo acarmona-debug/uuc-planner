@@ -635,6 +635,8 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
           {task.due_date&&<div><div className="detail-label">Fecha límite</div><div className={"t-sm "+dueCls(task.due_date)}>📅 {fmt(task.due_date)}</div></div>}
           {task.category&&<div><div className="detail-label">Categoría</div><span className="badge badge-gray">{task.category}</span></div>}
           {(task.tags||[]).length>0&&<div><div className="detail-label">Tags</div><div className="flex wrap gap4">{task.tags.map(t=><span key={t} className="tag">#{t}</span>)}</div></div>}
+          {task._isShared&&<div><div className="detail-label">Compartido por</div><div className="flex center gap8"><div className="avatar" style={{width:22,height:22,fontSize:9}}>{initials(allProfiles[task._sharedBy])}</div><span className="t-sm">{allProfiles[task._sharedBy]?.nombre} {allProfiles[task._sharedBy]?.apellido}</span></div></div>}
+          {task.is_subtask&&task.parent_id&&<div><div className="detail-label">Asignado por</div><div className="flex center gap8"><div className="avatar" style={{width:22,height:22,fontSize:9}}>{initials(allProfiles[task._assignedBy])}</div><span className="t-sm">{allProfiles[task._assignedBy]?.nombre} {allProfiles[task._assignedBy]?.apellido}</span></div></div>}  
           {isGer&&task.started_at&&<div><div className="detail-label">Inicio</div><div className="t-xs muted">{fmtFull(task.started_at)}</div></div>}
           {isGer&&task.completed_at&&<div><div className="detail-label">Completada</div><div className="t-xs muted">{fmtFull(task.completed_at)}</div></div>}
         </div>
@@ -735,9 +737,14 @@ function BoardView({tasks,profile,allProfiles,cfg,cmtMap,onTaskOpen,onNewTask,on
     if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"→",detail:STATUS[ns]?.label});toast("→ "+STATUS[ns]?.label,"success");onSaved();}else toast(error.message,"error");
   };
   const doAction=async(task,opt)=>{
-    if(opt==="archivar"){await sb.from("tasks").update({archived:true}).eq("id",task.id);toast("Archivada","success");onSaved();return;}
-    if(opt==="desarchivar"){await sb.from("tasks").update({archived:false}).eq("id",task.id);toast("Desarchivada","success");onSaved();return;}
-    await doStatusChange(task,opt);
+  if(opt==="archivar"){await sb.from("tasks").update({archived:true}).eq("id",task.id);toast("Archivada","success");onSaved();return;}
+  if(opt==="desarchivar"){await sb.from("tasks").update({archived:false}).eq("id",task.id);toast("Desarchivada","success");onSaved();return;}
+  if(opt==="lista"&&task.block_on_subtasks){
+    const{data:subs}=await sb.from("tasks").select("id,status").eq("parent_id",task.id);
+    const inc=(subs||[]).filter(s=>s.status!=="lista"&&s.status!=="descartada");
+    if(inc.length){toast("⚠️ "+inc.length+" subtarea(s) sin completar. Abre la tarea para confirmar.","error");return;}
+  }
+  await doStatusChange(task,opt);
   };
   const doPin=async task=>{await sb.from("tasks").update({is_pinned:!task.is_pinned}).eq("id",task.id);onSaved();};
   const byStatus=st=>[...filtered.filter(t=>t.status===st)].sort((a,b)=>(b.is_pinned?1:0)-(a.is_pinned?1:0));
@@ -958,14 +965,15 @@ function App(){
   const loadTasks=async()=>{
     const pid=profRef.current?.id;if(!pid)return;
     const{data:own}=await sb.from("tasks").select("*").eq("owner_id",pid).order("created_at",{ascending:false});
-    const{data:shares}=await sb.from("task_shares").select("task_id").eq("shared_with",pid);
+    const{data:shares}=await sb.from("task_shares").select("task_id,shared_by").eq("shared_with",pid);
     let shared=[];
     if(shares?.length){
       const ids=[...new Set(shares.map(s=>s.task_id))];
       const{data}=await sb.from("tasks").select("*").in("id",ids);
       // FIX 6: marcar con _isShared para que el filtro "Compartidas" funcione correctamente
       // sin cambiar el owner_id de la tarea original
-      shared=(data||[]).map(t=>({...t,_isShared:true}));
+      const sharedByMap={};shares.forEach(s=>{sharedByMap[s.task_id]=s.shared_by;});
+      shared=(data||[]).map(t=>({...t,_isShared:true,_sharedBy:sharedByMap[t.id]}));
     }
     const all=[...(own||[]),...shared].filter((t,i,a)=>a.findIndex(x=>x.id===t.id)===i);
     setTasks(all);
