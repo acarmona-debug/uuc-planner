@@ -732,9 +732,14 @@ function BoardView({tasks,profile,allProfiles,cfg,cmtMap,onTaskOpen,onNewTask,on
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{if(a.is_pinned&&!b.is_pinned)return -1;if(!a.is_pinned&&b.is_pinned)return 1;return new Date(b.created_at)-new Date(a.created_at);}),[filtered]);
 
   const doStatusChange=async(task,ns)=>{
-    const u={status:ns};if(ns==="en_curso"&&!task.started_at)u.started_at=new Date().toISOString();if(ns==="lista")u.completed_at=new Date().toISOString();
-    const{error}=await sb.from("tasks").update(u).eq("id",task.id);
-    if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"→",detail:STATUS[ns]?.label});toast("→ "+STATUS[ns]?.label,"success");onSaved();}else toast(error.message,"error");
+  if(ns==="lista"&&task.block_on_subtasks){
+    const{data:subs}=await sb.from("tasks").select("id,status").eq("parent_id",task.id);
+    const inc=(subs||[]).filter(s=>s.status!=="lista"&&s.status!=="descartada");
+    if(inc.length){toast("⚠️ "+inc.length+" subtarea(s) sin completar. Abre la tarea para confirmar.","error");return;}
+  }
+  const u={status:ns};if(ns==="en_curso"&&!task.started_at)u.started_at=new Date().toISOString();if(ns==="lista")u.completed_at=new Date().toISOString();
+  const{error}=await sb.from("tasks").update(u).eq("id",task.id);
+  if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"→",detail:STATUS[ns]?.label});toast("→ "+STATUS[ns]?.label,"success");onSaved();}else toast(error.message,"error");
   };
   const doAction=async(task,opt)=>{
   if(opt==="archivar"){await sb.from("tasks").update({archived:true}).eq("id",task.id);toast("Archivada","success");onSaved();return;}
