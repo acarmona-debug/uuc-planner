@@ -37,11 +37,11 @@ label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}.field{
 .modal-close{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:var(--radius);line-height:1;}.modal-close:hover{background:var(--bg3);color:var(--text);}
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap;}
 .badge-yellow{background:rgba(234,179,8,.15);color:#fbbf24;}.badge-blue{background:rgba(59,130,246,.15);color:#60a5fa;}.badge-green{background:rgba(34,197,94,.15);color:#4ade80;}.badge-red{background:rgba(239,68,68,.15);color:#f87171;}.badge-gray{background:rgba(71,85,105,.4);color:var(--text2);}
-/* TOASTS — sin pointer-events:none para que los botones funcionen */
+/* TOASTS */
 #toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;}
 .toast{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 20px;font-size:13px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;animation:slideUp .2s ease;min-width:260px;max-width:420px;}
-.toast .t-undo{background:var(--accent);color:#000;padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;}
-.toast .t-close{background:var(--bg3);color:var(--text);padding:3px 9px;font-size:12px;border-radius:6px;cursor:pointer;}
+.toast .t-undo{background:var(--accent);color:#000;padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:none;}
+.toast .t-close{background:var(--bg3);color:var(--text);padding:3px 9px;font-size:12px;border-radius:6px;cursor:pointer;border:none;}
 @keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .spinner{width:20px;height:20px;border:2px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}.spinner-lg{width:36px;height:36px;border-width:3px;}@keyframes spin{to{transform:rotate(360deg);}}
 .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
@@ -52,7 +52,7 @@ label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}.field{
 .nav-tab{background:transparent;border:none;color:var(--text2);padding:6px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;transition:var(--tr);}.nav-tab:hover{background:var(--bg3);color:var(--text);}.nav-tab.active{background:var(--bg3);color:var(--accent);}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;}
 .main-content{flex:1;overflow-y:auto;padding:20px;}
-/* ANNOUNCEMENT BANNER */
+/* ANNOUNCEMENT */
 .ann-banner{background:rgba(234,179,8,.12);border-bottom:2px solid rgba(234,179,8,.5);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .ann-accept{background:var(--accent);color:#000;padding:6px 18px;font-weight:700;font-size:13px;border-radius:var(--radius);cursor:pointer;border:none;flex-shrink:0;}
 /* TASK ROW */
@@ -65,16 +65,15 @@ label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}.field{
 .col-header{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;}
 .col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;}
 .col-count{background:var(--bg3);color:var(--text2);border-radius:100px;padding:1px 8px;font-size:11px;}
-/* CARD */
 .task-card{background:var(--bg2);border:1px solid var(--border);border-top:3px solid transparent;border-radius:var(--radius-lg);padding:10px 12px;cursor:pointer;transition:transform var(--tr),box-shadow var(--tr);}
 .task-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3);}
-/* PIN — usa CSS var --sc (status color), outline pulsa en ese color, 1.5s */
-@keyframes pinPulse{
-  0%,100%{outline:2px solid transparent;outline-offset:1px;box-shadow:none;}
-  50%{outline:2px solid var(--sc,#eab308);outline-offset:3px;box-shadow:0 0 10px 1px var(--sc-fade,rgba(234,179,8,.2));}
-}
-.task-pinned{animation:pinPulse 1.5s ease-in-out infinite;}
-/* PIN BUTTON — fondo visible cuando activo */
+/* FIX PIN — 5 keyframes hardcoded por estado, 1.5s */
+@keyframes pp-pendiente{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,0);}50%{box-shadow:0 0 0 7px rgba(234,179,8,.4);}}
+@keyframes pp-en_curso{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0);}50%{box-shadow:0 0 0 7px rgba(59,130,246,.4);}}
+@keyframes pp-lista{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0);}50%{box-shadow:0 0 0 7px rgba(34,197,94,.4);}}
+@keyframes pp-bloqueada{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}50%{box-shadow:0 0 0 7px rgba(239,68,68,.4);}}
+@keyframes pp-descartada{0%,100%{box-shadow:0 0 0 0 rgba(107,114,128,0);}50%{box-shadow:0 0 0 7px rgba(107,114,128,.4);}}
+/* PIN BUTTON */
 .pin-btn{transition:color var(--tr),background var(--tr),transform var(--tr);border-radius:var(--radius);}
 .pin-btn.active{color:var(--accent)!important;background:rgba(234,179,8,.18)!important;}
 .pin-btn:hover{transform:scale(1.15);}
@@ -111,11 +110,11 @@ label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}.field{
 .comment-mention{color:var(--accent);font-weight:600;}
 .bitacora-item{display:flex;gap:10px;font-size:12px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);}
 .subtask-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius);margin-bottom:6px;}.subtask-item.cancelled{opacity:.5;text-decoration:line-through;}
-/* CALENDAR */
+/* CALENDAR — FIX: grid empieza en Lunes, header "Sem" sin S */
 .cal-outer{display:flex;flex-direction:column;gap:16px;}
-.cal-grid{display:grid;grid-template-columns:40px repeat(7,1fr);gap:3px;}
+.cal-grid{display:grid;grid-template-columns:44px repeat(7,1fr);gap:3px;}
 .cal-day-hdr{text-align:center;font-size:11px;font-weight:700;color:var(--text2);padding:4px 0;}
-.cal-wn{display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-size:10px;font-weight:700;color:var(--border);font-family:monospace;}
+.cal-wn{display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-size:11px;font-weight:700;color:var(--text2);font-family:monospace;}
 .cal-cell{background:var(--bg3);border-radius:var(--radius);padding:6px;min-height:72px;cursor:pointer;border:1px solid transparent;display:flex;flex-direction:column;gap:2px;transition:background var(--tr);}
 .cal-cell:hover{background:var(--border);}.cal-cell.today{border-color:var(--accent);}.cal-cell.has-ov{background:rgba(239,68,68,.08);}.cal-cell.sel{border-color:var(--blue);background:rgba(59,130,246,.08);}
 .cal-num{font-size:12px;font-weight:600;margin-bottom:2px;}
@@ -141,7 +140,7 @@ label{font-size:12px;color:var(--text2);margin-bottom:4px;display:block;}.field{
 .due-ok{color:var(--text2);}.due-soon{color:var(--accent);}.due-overdue{color:var(--red);}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 .fade-in{animation:fadeIn .2s ease;}
-@media(max-width:640px){.topbar .nav-tab span{display:none;}.board-columns{grid-template-columns:1fr;}.modal{padding:16px;}.dash-sidebar{display:none;}.cal-grid{grid-template-columns:28px repeat(7,1fr);}.cal-cell{min-height:48px;}.filas-date,.filas-cat,.filas-owner{display:none;}}
+@media(max-width:640px){.topbar .nav-tab span{display:none;}.board-columns{grid-template-columns:1fr;}.modal{padding:16px;}.dash-sidebar{display:none;}.cal-grid{grid-template-columns:36px repeat(7,1fr);}.cal-cell{min-height:48px;}.filas-date,.filas-cat,.filas-owner{display:none;}}
 </style>
 </head>
 <body>
@@ -197,7 +196,7 @@ const ALL_METRICS=[
   {id:"con_vencidas",label:"Con vencidas",g:"Personas"},
 ];
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// helpers
 const fmt=d=>{if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"2-digit"});};
 const fmtFull=d=>{if(!d)return"";return new Date(d).toLocaleString("es-MX",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});};
 const fmtHrs=h=>{if(h===null||h===undefined)return"—";if(h<1)return Math.round(h*60)+"min";if(h<24)return Math.round(h)+"h";return Math.round(h/24)+"d";};
@@ -208,53 +207,77 @@ const rolLabel=r=>({admin:"Admin",gerente:"Gerente",subordinado:"Subordinado"}[r
 const gcalUrl=t=>{const b="https://calendar.google.com/calendar/render?action=TEMPLATE";const d=(t.due_date||"").replace(/-/g,"");return b+"&text="+encodeURIComponent(t.title)+"&details="+encodeURIComponent((t.folio||"")+" "+(t.description||""))+(d?"&dates="+d+"/"+d:"");};
 const tgSend=async(cid,txt)=>{if(!cid)return;try{await fetch("https://api.telegram.org/bot"+TG_TOKEN+"/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:cid,text:txt,parse_mode:"HTML"})});}catch{}};
 
-// FIX: semana del año ultra simple — day-of-year / 7
-// new Date(y,0,0) = 31 Dic del año anterior → diferencia en días = día del año
-const getWeekNum=d=>{
-  const startOfYear=new Date(d.getFullYear(),0,0);
-  const dayOfYear=Math.round((d-startOfYear)/86400000);
-  return Math.ceil(dayOfYear/7);
+// FIX 1: ISO week — igual que calendario-365.mx (semana comienza lunes)
+const getISOWeek=d=>{
+  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const dow=dt.getUTCDay()||7;
+  dt.setUTCDate(dt.getUTCDate()+4-dow);
+  const y0=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+  return Math.ceil((((dt-y0)/86400000)+1)/7);
 };
 
-// FIX: cualquier rol puede editar sus propias tareas. Solo no puede editar las de otros.
-const canEditTask=(task,profile)=>task.owner_id===profile.id||profile.role==="admin";
+// FIX 2: PIN anim — nombres hardcoded, aplicados via style inline
+const PIN_ANIM={
+  pendiente:"pp-pendiente 1.5s ease-in-out infinite",
+  en_curso:"pp-en_curso 1.5s ease-in-out infinite",
+  lista:"pp-lista 1.5s ease-in-out infinite",
+  bloqueada:"pp-bloqueada 1.5s ease-in-out infinite",
+  descartada:"pp-descartada 1.5s ease-in-out infinite",
+};
+const addPinAnim=(task,base={})=>task.is_pinned
+  ?{...base,animation:PIN_ANIM[task.status]||PIN_ANIM.pendiente}
+  :base;
 
-// FIX: hex #rrggbb → rgba(r,g,b,a) para la variable --sc-fade del pin
-const hexFade=(hex,a)=>{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return "rgba("+r+","+g+","+b+","+a+")";};
+// FIX 6: canEditTask — admin siempre, dueño solo si NO es subtarea asignada
+const canEditTask=(task,profile)=>{
+  if(profile.role==="admin")return true;
+  if(task.owner_id!==profile.id)return false; // no es dueño
+  if(task.is_subtask)return false;             // es subtarea asignada por otro
+  return true;
+};
 
-// ── toasts ────────────────────────────────────────────────────────────────────
-let _setToasts=null;
-const toast=(msg,type="info",undo=null)=>{if(_setToasts)_setToasts(p=>[...p,{id:Date.now()+(Math.random()*99|0),msg,type,undo}]);};
+// FIX 3: Toasts — cada item maneja su propio timer, no el contenedor
+let _addToast=null;
+const toast=(msg,type="info",undo=null)=>{
+  if(_addToast)_addToast({id:Date.now()+(Math.random()*99|0),msg,type,undo});
+};
 
-function ToastContainer(){
-  const[ts,setTs]=useState([]);
-  useEffect(()=>{_setToasts=setTs;return()=>{_setToasts=null;};},[]);
-  useEffect(()=>{if(!ts.length)return;const t=setTimeout(()=>setTs(p=>p.slice(1)),5000);return()=>clearTimeout(t);},[ts]);
-  const rm=useCallback(id=>setTs(p=>p.filter(t=>t.id!==id)),[]);
-  // FIX: botones usan onClick normal, el contenedor no tiene pointer-events:none
-  return <div id="toast-container">{ts.map(t=>(
-    <div key={t.id} className="toast">
+function ToastItem({t,onRemove}){
+  useEffect(()=>{
+    const tid=setTimeout(()=>onRemove(t.id),4000);
+    return()=>clearTimeout(tid);
+  },[]);
+  return(
+    <div className="toast">
       <span>{t.type==="error"?"❌":t.type==="success"?"✅":"ℹ️"}</span>
       <span style={{flex:1}}>{t.msg}</span>
-      {t.undo&&<button className="t-undo" onClick={()=>{t.undo();rm(t.id);}}>Deshacer</button>}
-      <button className="t-close" onClick={()=>rm(t.id)}>✕</button>
+      {t.undo&&<button className="t-undo" onClick={()=>{t.undo();onRemove(t.id);}}>Deshacer</button>}
+      <button className="t-close" onClick={()=>onRemove(t.id)}>✕</button>
     </div>
-  ))}</div>;
+  );
+}
+function ToastContainer(){
+  const[ts,setTs]=useState([]);
+  useEffect(()=>{_addToast=t=>setTs(p=>[...p,t]);return()=>{_addToast=null;};},[]);
+  const rm=useCallback(id=>setTs(p=>p.filter(t=>t.id!==id)),[]);
+  return <div id="toast-container">{ts.map(t=><ToastItem key={t.id} t={t} onRemove={rm}/>)}</div>;
 }
 
-// ── portal ────────────────────────────────────────────────────────────────────
+// Portal helper
 function Portal({children}){
   const el=useRef(null);
-  if(!el.current){el.current=document.createElement("div");}
+  if(!el.current)el.current=document.createElement("div");
   useEffect(()=>{document.body.appendChild(el.current);return()=>{try{document.body.removeChild(el.current);}catch{}};},[]);
   return ReactDOM.createPortal(children,el.current);
 }
 
-// FIX: DotsMenu — usa onClick en items + setTimeout para que el cierre no cancele la acción
+// FIX 4: DotsMenu — revertido a onClick simple + ref booleano para no cancelar el click del item
 function DotsMenu({task,profile,onAction}){
   const[open,setOpen]=useState(false);
   const[pos,setPos]=useState({top:0,right:0});
   const btnRef=useRef(null);
+  const clickingRef=useRef(false); // true mientras el cursor está sobre un item
+
   if(task.owner_id!==profile.id&&profile.role!=="admin")return null;
   const opts=task.archived?["desarchivar"]:DOTS_OPTS[task.status]||[];
   if(!opts.length)return null;
@@ -269,21 +292,20 @@ function DotsMenu({task,profile,onAction}){
   useEffect(()=>{
     if(!open)return;
     const fn=e=>{
+      if(clickingRef.current)return; // item en proceso, no cerrar
       if(btnRef.current&&btnRef.current.contains(e.target))return;
       setOpen(false);
     };
-    document.addEventListener("click",fn,true);
-    return()=>document.removeEventListener("click",fn,true);
+    document.addEventListener("mousedown",fn);
+    return()=>document.removeEventListener("mousedown",fn);
   },[open]);
 
-  const handleItem=useCallback((o,e)=>{
-    e.stopPropagation();
-    setOpen(false);
-    // FIX: setTimeout asegura que setOpen(false) procesa antes de onAction
-    setTimeout(()=>onAction(o),0);
-  },[onAction]);
-
-  const META={pendiente:{icon:"⏳",label:"→ Pendiente"},en_curso:{icon:"🔵",label:"→ En curso"},lista:{icon:"✅",label:"→ Lista"},bloqueada:{icon:"🔴",label:"→ Bloqueada"},descartada:{icon:"❌",label:"→ Descartada"},archivar:{icon:"📦",label:"Archivar"},desarchivar:{icon:"📤",label:"Desarchivar"}};
+  const META={
+    pendiente:{icon:"⏳",label:"→ Pendiente"},en_curso:{icon:"🔵",label:"→ En curso"},
+    lista:{icon:"✅",label:"→ Lista"},bloqueada:{icon:"🔴",label:"→ Bloqueada"},
+    descartada:{icon:"❌",label:"→ Descartada"},archivar:{icon:"📦",label:"Archivar"},
+    desarchivar:{icon:"📤",label:"Desarchivar"},
+  };
 
   return(
     <div onClick={e=>e.stopPropagation()}>
@@ -291,8 +313,11 @@ function DotsMenu({task,profile,onAction}){
       {open&&<Portal>
         <div className="dots-dd" style={{top:pos.top,right:pos.right}}>
           {opts.map(o=>(
-            <div key={o} className={"dots-item"+(o==="descartada"||o==="archivar"?" danger":"")}
-              onClick={e=>handleItem(o,e)}>
+            <div key={o}
+              className={"dots-item"+(o==="descartada"||o==="archivar"?" danger":"")}
+              onMouseEnter={()=>{clickingRef.current=true;}}
+              onMouseLeave={()=>{clickingRef.current=false;}}
+              onClick={e=>{e.stopPropagation();setOpen(false);onAction(o);}}>
               {META[o]?.icon} {META[o]?.label||o}
             </div>
           ))}
@@ -401,22 +426,15 @@ function UserPicker({users,value,onChange}){
   </div>;
 }
 
-// FIX: pin styles helper — agrega --sc y --sc-fade al estilo inline del elemento
-const pinStyle=(task,baseStyle)=>{
-  const sc=sColor(task.status);
-  return{...baseStyle,"--sc":sc,"--sc-fade":hexFade(sc,0.25)};
-};
-
 // ── task cards ────────────────────────────────────────────────────────────────
 function TaskRow({task,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin,onAction}){
   const st=STATUS[task.status]||STATUS.pendiente,ns=NEXT[task.status],owner=allProfiles[task.owner_id];
   const showDot=(profile.role==="admin"||profile.role==="gerente")&&task.owner_id!==profile.id;
   const canPin=task.owner_id===profile.id||profile.role==="admin";
   const cnt=cmtMap?.[task.id]||0;
-  // FIX: pinStyle añade --sc y --sc-fade para que pinPulse use el color del estado
   return <div
-    className={"task-row"+(task.is_pinned?" task-pinned":"")}
-    style={pinStyle(task,{borderLeftColor:sColor(task.status)})}
+    className="task-row"
+    style={addPinAnim(task,{borderLeftColor:sColor(task.status)})}
     onClick={()=>onOpen(task)}>
     <div style={{flex:1,minWidth:0}}>
       <div className="flex center gap8"><span style={{fontWeight:600}}>{task.title}</span>{task.is_pinned&&<span style={{fontSize:11}}>📌</span>}{showDot&&<div className={"read-dot"+(task.read_by_assignee?" read":" unread")}/>}</div>
@@ -426,13 +444,12 @@ function TaskRow({task,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin,on
         {task.due_date&&<span className={"t-xs "+dueCls(task.due_date)}>📅 {fmt(task.due_date)}</span>}
         {task.category&&<span className="badge badge-gray t-xs">{task.category}</span>}
         {(task.tags||[]).slice(0,2).map(t=><span key={t} className="tag">#{t}</span>)}
-        {/* FIX: title para tooltip de comentarios */}
-        {cnt>0&&<span className="t-xs muted" title={cnt+" comentario(s)— clic para ver"}>💬 {cnt}</span>}
+        {cnt>0&&<span className="t-xs muted" title={cnt+" comentario(s)"}>💬 {cnt}</span>}
         {owner&&<div className="flex center gap4"><div className="avatar" style={{width:16,height:16,fontSize:7}}>{initials(owner)}</div><span className="t-xs muted">{owner.nombre}</span></div>}
       </div>
     </div>
     <div className="flex center gap4" style={{flexShrink:0}} onClick={e=>e.stopPropagation()}>
-      {canPin&&<button className={"btn-icon pin-btn"+(task.is_pinned?" active":"")} title={task.is_pinned?"Quitar pin":"Fijar tarea"} onClick={()=>onPin(task)}>📌</button>}
+      {canPin&&<button className={"btn-icon pin-btn"+(task.is_pinned?" active":"")} title={task.is_pinned?"Quitar pin":"Fijar"} onClick={()=>onPin(task)}>📌</button>}
       {ns&&!task.archived&&<button className="btn-secondary btn-xs" onClick={()=>onStatusChange(task,ns)}>→ {STATUS[ns]?.label}</button>}
       <DotsMenu task={task} profile={profile} onAction={o=>onAction(task,o)}/>
     </div>
@@ -445,15 +462,15 @@ function TaskCard({task,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin,o
   const canPin=task.owner_id===profile.id||profile.role==="admin";
   const cnt=cmtMap?.[task.id]||0;
   return <div
-    className={"task-card fade-in"+(task.is_pinned?" task-pinned":"")}
-    style={pinStyle(task,{borderTopColor:sColor(task.status)})}
+    className="task-card fade-in"
+    style={addPinAnim(task,{borderTopColor:sColor(task.status)})}
     onClick={()=>onOpen(task)}>
     <div className="flex between center" style={{marginBottom:6}}>
       <span className="t-xs muted" style={{fontFamily:"monospace"}}>{task.folio||""}</span>
       <div className="flex center gap4" onClick={e=>e.stopPropagation()}>
         {cnt>0&&<span className="t-xs muted" title={cnt+" comentario(s)"}>💬 {cnt}</span>}
         {showDot&&<div className={"read-dot"+(task.read_by_assignee?" read":" unread")}/>}
-        {canPin&&<button className={"btn-icon pin-btn"+(task.is_pinned?" active":"")} title={task.is_pinned?"Quitar pin":"Fijar"} style={{fontSize:11,padding:3}} onClick={()=>onPin(task)}>📌</button>}
+        {canPin&&<button className={"btn-icon pin-btn"+(task.is_pinned?" active":"")} style={{fontSize:11,padding:3}} title={task.is_pinned?"Quitar pin":"Fijar"} onClick={()=>onPin(task)}>📌</button>}
         <DotsMenu task={task} profile={profile} onAction={o=>onAction(task,o)}/>
       </div>
     </div>
@@ -477,7 +494,7 @@ function TaskFormModal({task,profile,cfg,onClose,onSaved}){
   const cats=cfg?.categories||DEF_CFG.categories;
   return <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
     <div className="modal-header"><span className="modal-title">{isEdit?"Editar":"Nueva tarea"}</span><button className="modal-close" onClick={onClose}>✕</button></div>
-    {!canEdit?<div className="muted t-sm">No tienes permiso para editar esta tarea.</div>:<div className="flex col gap12">
+    {!canEdit?<div className="muted t-sm" style={{padding:"8px 0"}}>Solo puedes editar tus propias tareas.</div>:<div className="flex col gap12">
       <div className="field"><label>Título *</label><input value={form.title} onChange={e=>set("title",e.target.value)} placeholder="¿Qué hay que hacer?"/></div>
       <div className="field"><label>Descripción</label><textarea value={form.description} onChange={e=>set("description",e.target.value)}/></div>
       <div className="flex gap8"><div className="field grow"><label>Fecha límite</label><input type="date" value={form.due_date} onChange={e=>set("due_date",e.target.value)}/></div><div className="field grow"><label>Categoría</label><select value={form.category} onChange={e=>set("category",e.target.value)}><option value="">—</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select></div></div>
@@ -498,13 +515,19 @@ function ShareModal({task,profile,allProfiles,onClose,onSaved}){
   const mode=canAssign&&sel&&(ROLE_RANK[target?.role]||1)<myRank?"assign":"share";
   const users=Object.values(allProfiles).filter(p=>p.id!==profile.id);
   const submit=async()=>{if(!sel){toast("Selecciona usuario","error");return;}setLoading(true);
-    if(mode==="assign"){const{error}=await sb.from("tasks").insert({title:task.title+" (subtarea)",description:note||task.description,owner_id:sel,parent_id:task.id,due_date:due||task.due_date,status:"pendiente",category:task.category,tags:task.tags,is_subtask:true});if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"asignó a",detail:target?.nombre+" "+target?.apellido});if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,"📋 <b>Subtarea asignada</b>\n"+task.folio+" — "+task.title+"\nPor: "+profile.nombre+(note?"\n"+note:""));toast("Asignado a "+target?.nombre,"success");}else toast(error.message,"error");}
-    else{const{error}=await sb.from("task_shares").insert({task_id:task.id,shared_by:profile.id,shared_with:sel,note});if(!error){if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,"🔗 <b>Tarea compartida</b>\n"+task.folio+" — "+task.title+"\nPor: "+profile.nombre+(note?"\n"+note:""));toast("Compartido con "+target?.nombre,"success");}else toast(error.message,"error");}
+    if(mode==="assign"){
+      const{error}=await sb.from("tasks").insert({title:task.title+" (subtarea)",description:note||task.description,owner_id:sel,parent_id:task.id,due_date:due||task.due_date,status:"pendiente",category:task.category,tags:task.tags,is_subtask:true});
+      if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"asignó a",detail:target?.nombre+" "+target?.apellido});if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,"📋 <b>Subtarea asignada</b>\n"+task.folio+" — "+task.title+"\nPor: "+profile.nombre+(note?"\n"+note:""));toast("Asignado a "+target?.nombre,"success");}else toast(error.message,"error");
+    }else{
+      // FIX 6: compartir no cambia owner, solo inserta en task_shares
+      const{error}=await sb.from("task_shares").insert({task_id:task.id,shared_by:profile.id,shared_with:sel,note});
+      if(!error){if(target?.telegram_chat_id)await tgSend(target.telegram_chat_id,"🔗 <b>Tarea compartida</b>\n"+task.folio+" — "+task.title+"\nPor: "+profile.nombre+(note?"\n"+note:""));toast("Compartido con "+target?.nombre,"success");}else toast(error.message,"error");
+    }
     setLoading(false);onSaved();onClose();};
   return <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
     <div className="modal-header"><span className="modal-title">Asignar / Compartir</span><button className="modal-close" onClick={onClose}>✕</button></div>
     <div className="card" style={{marginBottom:16,background:"var(--bg3)",padding:"10px 14px"}}><div className="t-sm bold truncate">{task.folio} — {task.title}</div></div>
-    {sel&&<div className="flex center gap8" style={{marginBottom:12,padding:"8px 12px",background:mode==="assign"?"rgba(59,130,246,.1)":"rgba(34,197,94,.1)",borderRadius:"var(--radius)"}}><span>{mode==="assign"?"⬇️":"🔗"}</span><span className="t-sm bold">{mode==="assign"?"Asignar subtarea":"Compartir"}</span></div>}
+    {sel&&<div className="flex center gap8" style={{marginBottom:12,padding:"8px 12px",background:mode==="assign"?"rgba(59,130,246,.1)":"rgba(34,197,94,.1)",borderRadius:"var(--radius)"}}><span>{mode==="assign"?"⬇️":"🔗"}</span><span className="t-sm bold">{mode==="assign"?"Asignar subtarea":"Compartir (solo visualización)"}</span></div>}
     <div className="flex col gap12">
       <div className="field"><label>Para *</label><UserPicker users={users} value={sel} onChange={setSel}/></div>
       {mode==="assign"&&<div className="field"><label>Fecha límite</label><input type="date" value={due} onChange={e=>setDue(e.target.value)}/></div>}
@@ -516,9 +539,16 @@ function ShareModal({task,profile,allProfiles,onClose,onSaved}){
 
 // ── task detail ───────────────────────────────────────────────────────────────
 function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShare}){
-  const[tab,setTab]=useState("detail");const[comments,setComments]=useState([]);const[bitacora,setBitacora]=useState([]);const[subtasks,setSubtasks]=useState([]);const[newCmt,setNewCmt]=useState("");const[loadingCmt,setLoadingCmt]=useState(false);const[confirm,setConfirm]=useState(null);
+  const[tab,setTab]=useState("detail");
+  const[comments,setComments]=useState([]);
+  const[bitacora,setBitacora]=useState([]);
+  const[subtasks,setSubtasks]=useState([]);
+  const[newCmt,setNewCmt]=useState("");
+  const[loadingCmt,setLoadingCmt]=useState(false);
+  const[confirm,setConfirm]=useState(null);
   const isOwner=task.owner_id===profile.id,isAdmin=profile.role==="admin",isGer=profile.role==="gerente"||isAdmin;
   const canEdit=canEditTask(task,profile);
+
   useEffect(()=>{
     if(!isOwner)sb.from("tasks").update({read_by_assignee:true}).eq("id",task.id).then(()=>{});
     sb.from("comments").select("*").eq("task_id",task.id).order("created_at").then(({data})=>setComments(data||[]));
@@ -527,7 +557,9 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     const ch=sb.channel("cmt-"+task.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"comments",filter:"task_id=eq."+task.id},p=>setComments(prev=>[...prev,p.new])).subscribe();
     return()=>sb.removeChannel(ch);
   },[task.id]);
+
   const sendCmt=async()=>{if(!newCmt.trim())return;setLoadingCmt(true);const text=newCmt.trim();await sb.from("comments").insert({task_id:task.id,user_id:profile.id,content:text});setNewCmt("");const m=[...text.matchAll(/@(\w+)/g)].map(x=>x[1].toLowerCase());for(const n of m){const t=Object.values(allProfiles).find(p=>p.nombre?.toLowerCase()===n||p.apellido?.toLowerCase()===n);if(t?.telegram_chat_id)await tgSend(t.telegram_chat_id,"💬 Mencionado en "+task.folio+": \""+text+"\"");}setLoadingCmt(false);};
+
   const applyStatus=async ns=>{
     setConfirm(null);
     const u={status:ns};
@@ -538,23 +570,24 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"→",detail:STATUS[ns]?.label});
     toast("→ "+STATUS[ns]?.label,"success");onSaved();
   };
-  // FIX: block_on_subtasks — subtasks ya están cargados en el state, no hace query async
+
+  // FIX 5: block_on_subtasks — usa subtasks ya cargados en state (se cargan en useEffect al abrir)
   const handleAction=async opt=>{
     if(opt==="archivar"){await sb.from("tasks").update({archived:true}).eq("id",task.id);toast("Archivada","success");onSaved();onClose();return;}
     if(opt==="desarchivar"){await sb.from("tasks").update({archived:false}).eq("id",task.id);toast("Desarchivada","success");onSaved();onClose();return;}
     if(task.block_on_subtasks&&opt==="lista"){
       const inc=subtasks.filter(s=>s.status!=="lista"&&s.status!=="descartada");
       if(inc.length){
-        setConfirm({ns:opt,warn:"⚠️ Hay "+inc.length+" subtarea(s) sin completar. ¿Marcar como Lista de todas formas?"});
+        setConfirm({ns:opt,warn:"⚠️ "+inc.length+" subtarea(s) sin completar. ¿Marcar Lista de todas formas?"});
         return;
       }
     }
     await applyStatus(opt);
   };
-  // FIX: undo en deleteTask — reinsertar sin id para que Supabase genere uno nuevo
+
   const deleteTask=async()=>{
     if(!canEdit)return;
-    const{id:_,folio:__,...rest}=task; // quitar id y folio (folio lo regenera el trigger)
+    const{id:_id,folio:_folio,...rest}=task;
     await sb.from("tasks").delete().eq("id",task.id);
     onSaved();onClose();
     toast("Eliminada","info",async()=>{
@@ -563,10 +596,15 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
       toast("Restaurada","success");
     });
   };
+
   const ns=NEXT[task.status],owner=allProfiles[task.owner_id],dotsOpts=task.archived?["desarchivar"]:DOTS_OPTS[task.status]||[];
+
   return <div className="overlay" onClick={onClose}><div className="modal modal-lg" onClick={e=>e.stopPropagation()}>
     <div className="modal-header">
-      <div className="flex col gap4 grow"><div className="flex center gap8"><span className="muted t-xs" style={{fontFamily:"monospace"}}>{task.folio}</span>{task.is_pinned&&<span>📌</span>}{task.archived&&<span className="badge badge-gray t-xs">Archivada</span>}</div><div className="modal-title">{task.title}</div></div>
+      <div className="flex col gap4 grow">
+        <div className="flex center gap8"><span className="muted t-xs" style={{fontFamily:"monospace"}}>{task.folio}</span>{task.is_pinned&&<span>📌</span>}{task.archived&&<span className="badge badge-gray t-xs">Archivada</span>}</div>
+        <div className="modal-title">{task.title}</div>
+      </div>
       <button className="modal-close" onClick={onClose}>✕</button>
     </div>
     <div className="flex wrap gap8 center" style={{marginBottom:16,paddingBottom:14,borderBottom:"1px solid var(--border)"}}>
@@ -614,11 +652,13 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
       </div>
       <div><textarea value={newCmt} onChange={e=>setNewCmt(e.target.value)} placeholder="Comentario... @menciona" onKeyDown={e=>{if(e.key==="Enter"&&e.ctrlKey)sendCmt();}} style={{minHeight:56}}/><div className="flex end gap8" style={{marginTop:6}}><span className="muted t-xs">Ctrl+Enter</span><button className="btn-primary btn-sm" onClick={sendCmt} disabled={loadingCmt||!newCmt.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button></div></div>
     </div>}
-    {tab==="bitacora"&&<div>{bitacora.length===0&&<div className="muted t-sm">Sin registros.</div>}{bitacora.map(b=>{const bp=allProfiles[b.user_id];return <div key={b.id} className="bitacora-item"><span style={{flexShrink:0,fontFamily:"monospace",fontSize:11}}>{fmtFull(b.created_at)}</span><span className="flex center gap4"><div className="avatar" style={{width:16,height:16,fontSize:7}}>{initials(bp)}</div><span className="bold">{bp?.nombre}</span><span>{b.action}</span>{b.detail&&<span className="accent">"{b.detail}"</span>}</span></div>;})}</div>}
+    {tab==="bitacora"&&<div>{bitacora.length===0&&<div className="muted t-sm">Sin registros.</div>}
+      {bitacora.map(b=>{const bp=allProfiles[b.user_id];return <div key={b.id} className="bitacora-item"><span style={{flexShrink:0,fontFamily:"monospace",fontSize:11}}>{fmtFull(b.created_at)}</span><span className="flex center gap4"><div className="avatar" style={{width:16,height:16,fontSize:7}}>{initials(bp)}</div><span className="bold">{bp?.nombre}</span><span>{b.action}</span>{b.detail&&<span className="accent">"{b.detail}"</span>}</span></div>;})}
+    </div>}
   </div></div>;
 }
 
-// ── filas view ────────────────────────────────────────────────────────────────
+// ── filas ─────────────────────────────────────────────────────────────────────
 function FilasView({tasks,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin,onAction}){
   const[order,setOrder]=useState(()=>{try{return JSON.parse(localStorage.getItem(FILAS_KEY))||DEF_FILAS;}catch{return DEF_FILAS;}});
   const[collapsed,setCollapsed]=useState({});
@@ -643,8 +683,8 @@ function FilasView({tasks,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin
         {group.length===0&&<div className="muted t-sm" style={{padding:"8px 12px"}}>Sin tareas</div>}
         {group.map(t=>{const ns=NEXT[t.status],owner=allProfiles[t.owner_id],cnt=cmtMap?.[t.id]||0;
           return <div key={t.id}
-            className={"filas-row"+(t.is_pinned?" task-pinned":"")}
-            style={pinStyle(t,{borderLeftColor:sColor(t.status)})}
+            className="filas-row"
+            style={addPinAnim(t,{borderLeftColor:sColor(t.status)})}
             onClick={()=>onOpen(t)}>
             <span className="filas-folio">{t.folio||"—"}</span>
             <div className="filas-title"><span className="truncate">{t.title}</span>{t.is_pinned&&<span style={{fontSize:10,flexShrink:0}}>📌</span>}{cnt>0&&<span className="t-xs muted" title={cnt+" comentario(s)"} style={{flexShrink:0}}>💬 {cnt}</span>}</div>
@@ -663,29 +703,37 @@ function FilasView({tasks,profile,allProfiles,cmtMap,onOpen,onStatusChange,onPin
   </div>;
 }
 
-// ── board view ────────────────────────────────────────────────────────────────
+// ── board ─────────────────────────────────────────────────────────────────────
 function BoardView({tasks,profile,allProfiles,cfg,cmtMap,onTaskOpen,onNewTask,onSaved}){
   const[view,setView]=useState(()=>{try{return localStorage.getItem("uuc-view")||"list";}catch{return"list";}});
-  const[ownerF,setOwnerF]=useState("all");const[statusF,setStatusF]=useState([]);const[catF,setCatF]=useState("");const[search,setSearch]=useState("");const[archived,setArchived]=useState(false);
+  const[ownerF,setOwnerF]=useState("all");
+  const[statusF,setStatusF]=useState([]);
+  const[catF,setCatF]=useState("");
+  const[search,setSearch]=useState("");
+  const[archived,setArchived]=useState(false);
   useEffect(()=>{try{localStorage.setItem("uuc-view",view);}catch{}},[view]);
   const togStatus=s=>setStatusF(p=>p.includes(s)?p.filter(x=>x!==s):[...p,s]);
   const cats=cfg?.categories||DEF_CFG.categories;
+
   const filtered=useMemo(()=>tasks.filter(t=>{
-    if(!archived&&t.archived)return false;if(archived&&!t.archived)return false;
+    if(!archived&&t.archived)return false;
+    if(archived&&!t.archived)return false;
     if(ownerF==="mine"&&t.owner_id!==profile.id)return false;
-    if(ownerF==="shared"&&t.owner_id===profile.id)return false;
+    // FIX 6: "Compartidas" usa el flag _isShared marcado en loadTasks
+    if(ownerF==="shared"&&!t._isShared)return false;
     if(statusF.length&&!statusF.includes(t.status))return false;
     if(catF&&t.category!==catF)return false;
     if(search){const q=search.toLowerCase();return t.title?.toLowerCase().includes(q)||t.folio?.toLowerCase().includes(q)||(t.tags||[]).some(g=>g.includes(q));}
     return true;
   }),[tasks,ownerF,statusF,catF,search,archived,profile.id]);
+
   const sorted=useMemo(()=>[...filtered].sort((a,b)=>{if(a.is_pinned&&!b.is_pinned)return -1;if(!a.is_pinned&&b.is_pinned)return 1;return new Date(b.created_at)-new Date(a.created_at);}),[filtered]);
+
   const doStatusChange=async(task,ns)=>{
     const u={status:ns};if(ns==="en_curso"&&!task.started_at)u.started_at=new Date().toISOString();if(ns==="lista")u.completed_at=new Date().toISOString();
     const{error}=await sb.from("tasks").update(u).eq("id",task.id);
     if(!error){await sb.from("bitacora").insert({task_id:task.id,user_id:profile.id,action:"→",detail:STATUS[ns]?.label});toast("→ "+STATUS[ns]?.label,"success");onSaved();}else toast(error.message,"error");
   };
-  // FIX: doAction simplificado — sin query async de subtareas (eso solo se hace en el detail)
   const doAction=async(task,opt)=>{
     if(opt==="archivar"){await sb.from("tasks").update({archived:true}).eq("id",task.id);toast("Archivada","success");onSaved();return;}
     if(opt==="desarchivar"){await sb.from("tasks").update({archived:false}).eq("id",task.id);toast("Desarchivada","success");onSaved();return;}
@@ -704,18 +752,28 @@ function BoardView({tasks,profile,allProfiles,cfg,cmtMap,onTaskOpen,onNewTask,on
       </div>
       <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Buscar..." style={{maxWidth:180,minWidth:80}}/>
       <div className="flex gap6 wrap center">
-        {[["all","Todas"],["mine","Mías"],["shared","Compartidas"]].map(([k,l])=><button key={k} className={"filter-chip"+(ownerF===k?" active":"")} style={ownerF===k?{background:"var(--accent)",borderColor:"var(--accent)",color:"#000"}:{}} onClick={()=>setOwnerF(k)}>{l}</button>)}
+        {[["all","Todas"],["mine","Mías"],["shared","Compartidas"]].map(([k,l])=>(
+          <button key={k} className={"filter-chip"+(ownerF===k?" active":"")}
+            style={ownerF===k?{background:"var(--accent)",borderColor:"var(--accent)",color:"#000"}:{}}
+            onClick={()=>setOwnerF(k)}>{l}</button>
+        ))}
         <button className={"filter-chip"+(archived?" active":"")} style={archived?{background:"var(--accent)",borderColor:"var(--accent)",color:"#000"}:{}} onClick={()=>setArchived(p=>!p)}>📦</button>
       </div>
       {!archived&&<button className="btn-primary btn-sm" style={{marginLeft:"auto"}} onClick={onNewTask}>+ Nueva</button>}
     </div>
     <div className="flex gap6 wrap center" style={{marginBottom:16}}>
       <span className="t-xs muted" style={{flexShrink:0}}>Estado:</span>
-      {Object.entries(STATUS).map(([k,v])=><button key={k} className={"filter-chip"+(statusF.includes(k)?" active":"")} style={statusF.includes(k)?{background:v.color+"22",borderColor:v.color,color:v.color}:{}} onClick={()=>togStatus(k)}>{ST_ICON[k]} {v.label}</button>)}
+      {Object.entries(STATUS).map(([k,v])=>(
+        <button key={k} className={"filter-chip"+(statusF.includes(k)?" active":"")}
+          style={statusF.includes(k)?{background:v.color+"22",borderColor:v.color,color:v.color}:{}}
+          onClick={()=>togStatus(k)}>{ST_ICON[k]} {v.label}</button>
+      ))}
       {statusF.length>0&&<button className="btn-ghost btn-xs" onClick={()=>setStatusF([])}>✕</button>}
       <div style={{marginLeft:"auto"}}>
-        {catF?<button className="filter-chip" style={{background:"rgba(168,85,247,.2)",borderColor:"var(--purple)",color:"var(--purple)"}} onClick={()=>setCatF("")}>📂 {catF} ✕</button>
-        :<select value={catF} onChange={e=>setCatF(e.target.value)} style={{maxWidth:150}}><option value="">Categoría...</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>}
+        {catF
+          ?<button className="filter-chip" style={{background:"rgba(168,85,247,.2)",borderColor:"var(--purple)",color:"var(--purple)"}} onClick={()=>setCatF("")}>📂 {catF} ✕</button>
+          :<select value={catF} onChange={e=>setCatF(e.target.value)} style={{maxWidth:150}}><option value="">Categoría...</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>
+        }
       </div>
     </div>
     {view==="list"&&<div className="task-list">{sorted.length===0&&<div className="muted t-sm" style={{padding:"32px",textAlign:"center"}}>Sin tareas</div>}{sorted.map(t=><TaskRow key={t.id} task={t} {...cp}/>)}</div>}
@@ -745,7 +803,23 @@ function DashboardView({tasks,profile,allProfiles}){
   const withOverdue=pE.filter(([,v])=>v.overdue>0);const maxC=catE[0]?.[1]||1,maxP=pE[0]?.[1]?.total||1;const p=allProfiles;
   const MC=({value,label,color,sub})=><div className="metric-card"><div className="metric-value" style={{color:color||"var(--text)"}}>{value??0}</div><div className="metric-label">{label}</div>{sub&&<div className="metric-sub">{sub}</div>}</div>;
   const renderM=id=>{switch(id){
-    case "activas":return <MC key={id} value={T.activas} label="Activas" color="var(--blue)"/>;case "en_curso":return <MC key={id} value={T.en_curso} label="En curso" color="var(--blue)"/>;case "vencidas":return <MC key={id} value={T.vencidas} label="Vencidas" color="var(--red)"/>;case "bloqueadas":return <MC key={id} value={T.bloqueadas} label="Bloqueadas" color="var(--red)"/>;case "completadas":return <MC key={id} value={T.completadas} label="Completadas" color="var(--green)"/>;case "total":return <MC key={id} value={T.total} label="Total" color="var(--text2)"/>;case "esta_semana":return <MC key={id} value={T.esta_semana} label="Esta semana" color="var(--purple)"/>;case "archivadas":return <MC key={id} value={T.archivadas} label="Archivadas" color="var(--text2)"/>;case "sin_fecha":return <MC key={id} value={T.sin_fecha} label="Sin fecha" color="var(--orange)"/>;case "completadas_hoy":return <MC key={id} value={T.completadas_hoy} label="Hoy" color="var(--green)"/>;case "tasa_exito":return <MC key={id} value={T.tasa_exito+"%"} label="Tasa éxito" color={T.tasa_exito>=70?"var(--green)":T.tasa_exito>=40?"var(--accent)":"var(--red)"}/>;case "replaneadas":return <MC key={id} value={T.replaneadas} label="Replaneadas" color="var(--orange)"/>;case "tiempo_prom":return <MC key={id} value={fmtHrs(avgTime)} label="T. promedio" color="var(--accent)"/>;case "mas_rapido":return <MC key={id} value={fastest?p[fastest.id]?.nombre||"—":"—"} label="Más rápido" sub={fastest?fmtHrs(fastest.avg):"—"} color="var(--green)"/>;case "mas_lento":return <MC key={id} value={slowest?p[slowest.id]?.nombre||"—":"—"} label="Más lento" sub={slowest?fmtHrs(slowest.avg):"—"} color="var(--red)"/>;case "carga_max":return <MC key={id} value={maxLoad?p[maxLoad[0]]?.nombre||"—":"—"} label="Mayor carga" sub={maxLoad?maxLoad[1].active+" activas":"—"} color="var(--orange)"/>;case "mas_completa":return <MC key={id} value={mostDone?p[mostDone[0]]?.nombre||"—":"—"} label="Más completa" sub={mostDone?mostDone[1].done+" tareas":"—"} color="var(--green)"/>;
+    case "activas":return <MC key={id} value={T.activas} label="Activas" color="var(--blue)"/>;
+    case "en_curso":return <MC key={id} value={T.en_curso} label="En curso" color="var(--blue)"/>;
+    case "vencidas":return <MC key={id} value={T.vencidas} label="Vencidas" color="var(--red)"/>;
+    case "bloqueadas":return <MC key={id} value={T.bloqueadas} label="Bloqueadas" color="var(--red)"/>;
+    case "completadas":return <MC key={id} value={T.completadas} label="Completadas" color="var(--green)"/>;
+    case "total":return <MC key={id} value={T.total} label="Total" color="var(--text2)"/>;
+    case "esta_semana":return <MC key={id} value={T.esta_semana} label="Esta semana" color="var(--purple)"/>;
+    case "archivadas":return <MC key={id} value={T.archivadas} label="Archivadas" color="var(--text2)"/>;
+    case "sin_fecha":return <MC key={id} value={T.sin_fecha} label="Sin fecha" color="var(--orange)"/>;
+    case "completadas_hoy":return <MC key={id} value={T.completadas_hoy} label="Hoy" color="var(--green)"/>;
+    case "tasa_exito":return <MC key={id} value={T.tasa_exito+"%"} label="Tasa éxito" color={T.tasa_exito>=70?"var(--green)":T.tasa_exito>=40?"var(--accent)":"var(--red)"}/>;
+    case "replaneadas":return <MC key={id} value={T.replaneadas} label="Replaneadas" color="var(--orange)"/>;
+    case "tiempo_prom":return <MC key={id} value={fmtHrs(avgTime)} label="T. promedio" color="var(--accent)"/>;
+    case "mas_rapido":return <MC key={id} value={fastest?p[fastest.id]?.nombre||"—":"—"} label="Más rápido" sub={fastest?fmtHrs(fastest.avg):"—"} color="var(--green)"/>;
+    case "mas_lento":return <MC key={id} value={slowest?p[slowest.id]?.nombre||"—":"—"} label="Más lento" sub={slowest?fmtHrs(slowest.avg):"—"} color="var(--red)"/>;
+    case "carga_max":return <MC key={id} value={maxLoad?p[maxLoad[0]]?.nombre||"—":"—"} label="Mayor carga" sub={maxLoad?maxLoad[1].active+" activas":"—"} color="var(--orange)"/>;
+    case "mas_completa":return <MC key={id} value={mostDone?p[mostDone[0]]?.nombre||"—":"—"} label="Más completa" sub={mostDone?mostDone[1].done+" tareas":"—"} color="var(--green)"/>;
     case "con_vencidas":return <div key={id} className="metric-card metric-wide"><div className="metric-label">Con vencidas</div>{withOverdue.length===0?<div className="muted t-sm" style={{marginTop:8}}>Nadie 🎉</div>:<div className="bar-chart">{withOverdue.map(([uid,v])=><div key={uid} className="bar-row"><span className="bar-label">{p[uid]?.nombre||"?"}</span><div className="bar-track"><div className="bar-fill" style={{width:(T.vencidas>0?(v.overdue/T.vencidas)*100:0)+"%",background:"var(--red)"}}/></div><span className="bar-val">{v.overdue}</span></div>)}</div>}</div>;
     case "por_categoria":return <div key={id} className="metric-card metric-wide"><div className="metric-label">Por categoría</div><div className="bar-chart">{catE.map(([cat,count])=><div key={cat} className="bar-row"><span className="bar-label">{cat}</span><div className="bar-track"><div className="bar-fill" style={{width:((count/maxC)*100)+"%",background:"var(--blue)"}}/></div><span className="bar-val">{count}</span></div>)}</div></div>;
     case "por_estado":return <div key={id} className="metric-card metric-wide"><div className="metric-label">Por estado</div><div className="bar-chart">{Object.entries(bySt).map(([st,c])=><div key={st} className="bar-row"><span className="bar-label">{STATUS[st]?.label}</span><div className="bar-track"><div className="bar-fill" style={{width:(T.total>0?(c/T.total)*100:0)+"%",background:sColor(st)}}/></div><span className="bar-val">{c}</span></div>)}</div></div>;
@@ -759,43 +833,69 @@ function DashboardView({tasks,profile,allProfiles}){
   </div>;
 }
 
-// ── calendar ──────────────────────────────────────────────────────────────────
+// ── calendar — FIX: lunes como primer día, header "Sem" sin S ─────────────────
 function CalendarView({tasks,onTaskClick}){
   const[month,setMonth]=useState(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()};});
   const[sel,setSel]=useState(null);
   const prev=()=>setMonth(p=>p.m===0?{y:p.y-1,m:11}:{y:p.y,m:p.m-1});
   const next=()=>setMonth(p=>p.m===11?{y:p.y+1,m:0}:{y:p.y,m:p.m+1});
-  const fd=new Date(month.y,month.m,1).getDay(),days=new Date(month.y,month.m+1,0).getDate(),today=new Date();
+  const today=new Date();
   const byDay={};tasks.forEach(t=>{if(!t.due_date)return;const d=new Date(t.due_date+"T12:00:00");if(d.getFullYear()===month.y&&d.getMonth()===month.m){const k=d.getDate();if(!byDay[k])byDay[k]=[];byDay[k].push(t);}});
-  const DAYS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  // FIX: primer día de semana = Lunes (1). getDay() da 0=Dom..6=Sáb, ajustar a 1=Lun..7=Dom
+  const DAYS_LUN=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   const MNS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Sep","Oct","Nov","Dic"];
-  // Construir semanas
+  const firstOfMonth=new Date(month.y,month.m,1);
+  const daysInMonth=new Date(month.y,month.m+1,0).getDate();
+  // Offset: cuántos días vacíos antes del 1 (0=Lun, 1=Mar, ... 6=Dom)
+  const rawDay=firstOfMonth.getDay(); // 0=Dom
+  const offset=rawDay===0?6:rawDay-1; // convertir a lunes=0
+
   const weeks=[];let wk=[];
-  for(let i=0;i<fd;i++)wk.push(null);
-  for(let d=1;d<=days;d++){wk.push(d);if(wk.length===7){weeks.push([...wk]);wk=[];}}
+  for(let i=0;i<offset;i++)wk.push(null);
+  for(let d=1;d<=daysInMonth;d++){
+    wk.push(d);
+    if(wk.length===7){weeks.push([...wk]);wk=[];}
+  }
   if(wk.length){while(wk.length<7)wk.push(null);weeks.push([...wk]);}
+
   const selTasks=sel&&byDay[sel]?byDay[sel]:[];
+
   return <div className="cal-outer fade-in">
     <div className="flex center between">
       <div className="t-xl bold">📅 {MNS[month.m]} {month.y}</div>
       <div className="flex center gap8"><button className="btn-ghost btn-sm" onClick={prev}>‹</button><button className="btn-ghost btn-sm" onClick={next}>›</button></div>
     </div>
     <div className="cal-grid">
-      <div/>{DAYS.map(d=><div key={d} className="cal-day-hdr">{d}</div>)}
+      {/* FIX: header "Sem" para la columna de números de semana */}
+      <div className="cal-day-hdr">Sem</div>
+      {DAYS_LUN.map(d=><div key={d} className="cal-day-hdr">{d}</div>)}
       {weeks.map((row,wi)=>{
+        // Número de semana ISO del lunes de esta fila
         const firstDay=row.find(d=>d!=null);
-        // FIX: getWeekNum con la fórmula simple day-of-year / 7
-        const wn=firstDay!=null?getWeekNum(new Date(month.y,month.m,firstDay)):null;
+        let wn=null;
+        if(firstDay!=null){
+          // Encontrar el lunes real de esta fila
+          const rowDate=new Date(month.y,month.m,firstDay);
+          const dow=rowDate.getDay()===0?7:rowDate.getDay();
+          const monday=new Date(rowDate);
+          monday.setDate(rowDate.getDate()-(dow-1));
+          wn=getISOWeek(monday);
+        }
         return <React.Fragment key={wi}>
-          <div className="cal-wn">{wn!=null?"S"+wn:""}</div>
+          <div className="cal-wn">{wn!=null?wn:""}</div>
           {row.map((day,di)=>{
             if(day==null)return <div key={di} className="cal-empty"/>;
             const dt=byDay[day]||[];
             const isToday=today.getDate()===day&&today.getMonth()===month.m&&today.getFullYear()===month.y;
             const hasOv=dt.some(t=>dueCls(t.due_date)==="due-overdue"&&t.status!=="lista");
-            return <div key={di} className={"cal-cell"+(isToday?" today":"")+(hasOv?" has-ov":"")+(sel===day?" sel":"")} onClick={()=>setSel(sel===day?null:day)}>
+            return <div key={di}
+              className={"cal-cell"+(isToday?" today":"")+(hasOv?" has-ov":"")+(sel===day?" sel":"")}
+              onClick={()=>setSel(sel===day?null:day)}>
               <div className={"cal-num"+(isToday?" accent":"")}>{day}</div>
-              {dt.slice(0,3).map(t=><div key={t.id} className="cal-chip" style={{background:sColor(t.status)+"18",borderLeftColor:sColor(t.status)}} onClick={e=>{e.stopPropagation();onTaskClick(t);}} title={t.title}>{t.title}</div>)}
+              {dt.slice(0,3).map(t=><div key={t.id} className="cal-chip"
+                style={{background:sColor(t.status)+"18",borderLeftColor:sColor(t.status)}}
+                onClick={e=>{e.stopPropagation();onTaskClick(t);}}
+                title={t.title}>{t.title}</div>)}
               {dt.length>3&&<div className="cal-more">+{dt.length-3} más</div>}
             </div>;
           })}
@@ -836,10 +936,12 @@ function AnnouncementsModal({profile,allProfiles,onClose}){
 function App(){
   const[session,setSession]=useState(null);const[profile,setProfile]=useState(null);const[allProfiles,setAllProfiles]=useState({});const[tasks,setTasks]=useState([]);const[cmtMap,setCmtMap]=useState({});const[cfg,setCfg]=useState(DEF_CFG);const[ann,setAnn]=useState(null);const[annDismissed,setAnnDismissed]=useState(false);const[loading,setLoading]=useState(true);const[tab,setTab]=useState("board");const[showProfile,setShowProfile]=useState(false);const[showEditP,setShowEditP]=useState(false);const[showAnn,setShowAnn]=useState(false);const[detailTask,setDetailTask]=useState(null);const[editTask,setEditTask]=useState(null);const[shareTask,setShareTask]=useState(null);
   const profRef=useRef(null);
+
   useEffect(()=>{sb.auth.getSession().then(({data:{session}})=>{setSession(session);if(!session)setLoading(false);});const{data:{subscription}}=sb.auth.onAuthStateChange((_e,s)=>{setSession(s);if(!s){setProfile(null);setLoading(false);}});return()=>subscription.unsubscribe();},[]);
   useEffect(()=>{if(session?.user?.id)loadProfile();},[session?.user?.id]);
   const loadProfile=async()=>{const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();setProfile(data);profRef.current=data;setLoading(false);};
   useEffect(()=>{if(!profile)return;sb.from("profiles").select("*").then(({data})=>{const m={};(data||[]).forEach(p=>{m[p.id]=p;});setAllProfiles(m);});},[profile?.id]);
+
   useEffect(()=>{
     if(!profile)return;
     sb.from("app_config").select("*").eq("key",CKEY).single().then(({data})=>{if(data?.value)setCfg({...DEF_CFG,...data.value});});
@@ -850,30 +952,49 @@ function App(){
       .subscribe();
     return()=>sb.removeChannel(ch);
   },[profile?.id]);
+
   useEffect(()=>{if(!profile)return;loadTasks();const ch=sb.channel("tasks-rt").on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>loadTasks()).subscribe();return()=>sb.removeChannel(ch);},[profile?.id]);
+
   const loadTasks=async()=>{
     const pid=profRef.current?.id;if(!pid)return;
     const{data:own}=await sb.from("tasks").select("*").eq("owner_id",pid).order("created_at",{ascending:false});
     const{data:shares}=await sb.from("task_shares").select("task_id").eq("shared_with",pid);
-    let shared=[];if(shares?.length){const ids=[...new Set(shares.map(s=>s.task_id))];const{data}=await sb.from("tasks").select("*").in("id",ids);shared=data||[];}
+    let shared=[];
+    if(shares?.length){
+      const ids=[...new Set(shares.map(s=>s.task_id))];
+      const{data}=await sb.from("tasks").select("*").in("id",ids);
+      // FIX 6: marcar con _isShared para que el filtro "Compartidas" funcione correctamente
+      // sin cambiar el owner_id de la tarea original
+      shared=(data||[]).map(t=>({...t,_isShared:true}));
+    }
     const all=[...(own||[]),...shared].filter((t,i,a)=>a.findIndex(x=>x.id===t.id)===i);
     setTasks(all);
-    if(all.length){const ids=all.map(t=>t.id);const{data:cmts}=await sb.from("comments").select("task_id").in("task_id",ids);const map={};(cmts||[]).forEach(c=>{map[c.task_id]=(map[c.task_id]||0)+1;});setCmtMap(map);}
+    if(all.length){
+      const ids=all.map(t=>t.id);
+      const{data:cmts}=await sb.from("comments").select("task_id").in("task_id",ids);
+      const map={};(cmts||[]).forEach(c=>{map[c.task_id]=(map[c.task_id]||0)+1;});
+      setCmtMap(map);
+    }
   };
+
   const logout=async()=>{await sb.auth.signOut();setSession(null);setProfile(null);};
   const Sp=()=><div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"var(--bg)"}}><div className="spinner spinner-lg"/></div>;
+
   if(loading)return <Sp/>;
   if(!session)return <AuthScreen/>;
   if(profile&&!profile.onboarding_done)return <OnboardingScreen user={session.user} onDone={loadProfile}/>;
   if(cfg.maintenance&&profile?.role!=="admin")return <MaintenanceScreen msg={cfg.maintenance_msg} isAdmin={false}/>;
   if(!profile)return <Sp/>;
+
   const showBanner=ann&&!annDismissed;
   return <div className="app-shell">
     {cfg.maintenance&&profile.role==="admin"&&<MaintenanceScreen msg={cfg.maintenance_msg} isAdmin onDisable={async()=>{const c={...cfg,maintenance:false};await sb.from("app_config").upsert({key:CKEY,value:c});setCfg(c);}}/>}
     <div className="topbar">
       <div className="topbar-logo">👾 <span>Task</span></div>
       <div className="flex center gap4">
-        {[["board","📋","Tareas"],["dashboard","📊","Dashboard"],["calendar","📅","Calendario"]].map(([k,ic,lb])=><button key={k} className={"nav-tab"+(tab===k?" active":"")} onClick={()=>setTab(k)}>{ic} <span>{lb}</span></button>)}
+        {[["board","📋","Tareas"],["dashboard","📊","Dashboard"],["calendar","📅","Calendario"]].map(([k,ic,lb])=>(
+          <button key={k} className={"nav-tab"+(tab===k?" active":"")} onClick={()=>setTab(k)}>{ic} <span>{lb}</span></button>
+        ))}
       </div>
       <div className="flex center gap8">
         {(profile.role==="admin"||profile.role==="gerente")&&<button className="btn-ghost btn-sm" onClick={()=>setShowAnn(true)}>📢</button>}
