@@ -622,7 +622,20 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     
       if(t?.telegram_chat_id&&!notified.has(t.id)){
         notified.add(t.id);
-        const cleanText=text.replace(/@\[(([^ \]]+)[^\]]*)\]\((u_[^)]+)\)/g,"@$2").trim();await tgSend(t.telegram_chat_id,'💬 '+profile.nombre+' te mencionó en '+task.folio+': "'+cleanText+'"');
+        const cleanText=text
+  // @[Nombre Apellido](u_xxx) -> @Nombre
+  .replace(/@\[(([^ \]]+)[^\]]*)\]\(u_[^)]+\)/g,"@$2")
+  // @u_xxx -> @Nombre (fallback por si quedó formato viejo)
+  .replace(/@u_([a-f0-9-]+)/gi,(m,rawId)=>{
+    const p=allProfiles[rawId]||Object.values(allProfiles).find(x=>x.id===rawId);
+    return p?.nombre?("@"+p.nombre):m;
+  })
+  .trim();
+
+await tgSend(
+  t.telegram_chat_id,
+  '💬 '+profile.nombre+' te mencionó en '+task.folio+': '+cleanText
+);
       }
     }
   
