@@ -546,6 +546,40 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   const[newCmt,setNewCmt]=useState("");
   const[loadingCmt,setLoadingCmt]=useState(false);
   const[confirm,setConfirm]=useState(null);
+  
+  const[mention,setMention]=useState({open:false,query:"",start:-1,active:0});
+  const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  
+  const mentionPool=useMemo(()=>Object.values(allProfiles||{}).map(p=>{
+    const full=((p.nombre||"")+" "+(p.apellido||"")).trim();
+    return {...p,_full:full,_search:norm(full+" "+(p.email||""))};
+  }).filter(p=>p._full),[allProfiles]);
+  
+  const mentionList=useMemo(()=>{
+    if(!mention.open)return[];
+    const q=norm(mention.query);
+    const out=mentionPool.filter(p=>!q||p._search.includes(q));
+    return out.slice(0,8);
+  },[mention.open,mention.query,mentionPool]);
+  
+  const updateMentionState=(val,caret)=>{
+    const before=val.slice(0,caret);
+    const at=before.lastIndexOf("@");
+    if(at===-1){setMention({open:false,query:"",start:-1,active:0});return;}
+    const left=at===0?" ":before[at-1];
+    if(left!==" "&&left!=="\n"&&left!=="\t"){setMention({open:false,query:"",start:-1,active:0});return;}
+    const q=before.slice(at+1);
+    if(/\s/.test(q)){setMention({open:false,query:"",start:-1,active:0});return;}
+    setMention({open:true,query:q,start:at,active:0});
+  };
+  
+  const insertMention=(p)=>{
+    const token=norm(p.nombre||p.apellido||"usuario").replace(/[^a-z0-9_]/g,"");
+    const pre=newCmt.slice(0,mention.start);
+    const post=newCmt.slice(mention.start+1+mention.query.length);
+    setNewCmt(pre+"@"+token+" "+post);
+    setMention({open:false,query:"",start:-1,active:0});
+  };
   const isOwner=task.owner_id===profile.id,isAdmin=profile.role==="admin",isGer=profile.role==="gerente"||isAdmin;
   const canEdit=canEditTask(task,profile);
 
@@ -558,7 +592,25 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     return()=>sb.removeChannel(ch);
   },[task.id]);
 
-  const sendCmt=async()=>{if(!newCmt.trim())return;setLoadingCmt(true);const text=newCmt.trim();await sb.from("comments").insert({task_id:task.id,user_id:profile.id,content:text});setNewCmt("");const m=[...text.matchAll(/@(\w+)/g)].map(x=>x[1].toLowerCase());for(const n of m){const t=Object.values(allProfiles).find(p=>p.nombre?.toLowerCase()===n||p.apellido?.toLowerCase()===n);if(t?.telegram_chat_id)await tgSend(t.telegram_chat_id,"💬 Mencionado en "+task.folio+": \""+text+"\"");}setLoadingCmt(false);};
+  const sendCmt=async()=>{
+    if(!newCmt.trim())return;
+    setLoadingCmt(true);
+    const text=newCmt.trim();
+    await sb.from("comments").insert({task_id:task.id,user_id:profile.id,content:text});
+    setNewCmt("");
+    setMention({open:false,query:"",start:-1,active:0});
+  
+    const tags=[...text.matchAll(/@([^\s@]+)/g)].map(x=>norm(x[1]));
+    const notified=new Set();
+    for(const n of tags){
+      const t=Object.values(allProfiles).find(p=>norm(p.nombre)===n||norm(p.apellido)===n);
+      if(t?.telegram_chat_id&&!notified.has(t.id)){
+        notified.add(t.id);
+        await tgSend(t.telegram_chat_id,'💬 Mencionado en '+task.folio+': "'+text+'"');
+      }
+    }
+    setLoadingCmt(false);
+  };
 
   const applyStatus=async ns=>{
     setConfirm(null);
@@ -649,10 +701,56 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
       </div>}
     </div>}
     {tab==="comments"&&<div className="flex col gap16">
-      <div className="flex col gap12">{comments.length===0&&<div className="muted t-sm">Sin comentarios.</div>}
-        {comments.map(c=>{const cp=allProfiles[c.user_id];return <div key={c.id} className="comment-item"><div className="comment-avatar">{initials(cp)}</div><div><div className="flex center gap8 t-sm" style={{marginBottom:2}}><span className="bold">{cp?.nombre}</span><span className="muted t-xs">{fmtFull(c.created_at)}</span></div><div style={{fontSize:13,lineHeight:1.5}}>{c.content.split(/(@\w+)/g).map((p,i)=>p.startsWith("@")?<span key={i} className="comment-mention">{p}</span>:p)}</div></div></div>;})}
+      <div className="flex col gap12">
+        {comments.length===0&&<div className="muted t-sm">Sin comentarios.</div>}
+        {comments.map(c=>{
+          const cp=allProfiles[c.user_id];
+          return <div key={c.id} className="comment-item">
+            <div className="comment-avatar">{initials(cp)}</div>
+            <div>
+              <div className="flex center gap8 t-sm" style={{marginBottom:2}}>
+                <span className="bold">{cp?.nombre}</span>
+                <span className="muted t-xs">{fmtFull(c.created_at)}</span>
+              </div>
+              <div style={{fontSize:13,lineHeight:1.5}}>
+                {c.content.split(/(@[^\s@]+)/g).map((p,i)=>p.startsWith("@")?<span key={i} className="comment-mention">{p}</span>:p)}
+              </div>
+            </div>
+          </div>;
+        })}
       </div>
-      <div><textarea value={newCmt} onChange={e=>setNewCmt(e.target.value)} placeholder="Comentario... @menciona" onKeyDown={e=>{if(e.key==="Enter"&&e.ctrlKey)sendCmt();}} style={{minHeight:56}}/><div className="flex end gap8" style={{marginTop:6}}><span className="muted t-xs">Ctrl+Enter</span><button className="btn-primary btn-sm" onClick={sendCmt} disabled={loadingCmt||!newCmt.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button></div></div>
+      <div style={{position:"relative"}}>
+  <textarea
+    value={newCmt}
+    onChange={e=>{
+      const v=e.target.value;
+      setNewCmt(v);
+      updateMentionState(v,e.target.selectionStart||v.length);
+    }}
+    placeholder="Comentario... @menciona"
+    onKeyDown={e=>{
+      if(mention.open&&mentionList.length){
+        if(e.key==="ArrowDown"){e.preventDefault();setMention(m=>({...m,active:Math.min(m.active+1,mentionList.length-1)}));return;}
+        if(e.key==="ArrowUp"){e.preventDefault();setMention(m=>({...m,active:Math.max(m.active-1,0)}));return;}
+        if(e.key==="Enter"&&!e.ctrlKey){e.preventDefault();insertMention(mentionList[mention.active]||mentionList[0]);return;}
+        if(e.key==="Escape"){e.preventDefault();setMention({open:false,query:"",start:-1,active:0});return;}
+      }
+      if(e.key==="Enter"&&e.ctrlKey)sendCmt();
+    }}
+    style={{minHeight:56}}
+  />
+  {mention.open&&mentionList.length>0&&(
+    <div style={{position:"absolute",left:0,right:0,bottom:"calc(100% + 6px)",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"var(--radius)",maxHeight:180,overflowY:"auto",zIndex:20}}>
+      {mentionList.map((p,i)=><button key={p.id} className="btn-ghost" style={{width:"100%",justifyContent:"flex-start",background:i===mention.active?"var(--bg3)":"transparent",borderRadius:0,padding:"8px 10px"}} onMouseDown={e=>e.preventDefault()} onClick={()=>insertMention(p)}>
+        @{norm(p.nombre||p.apellido||"usuario")} <span className="muted" style={{marginLeft:6}}>{p._full}</span>
+      </button>)}
+    </div>
+  )}
+  <div className="flex end gap8" style={{marginTop:6}}>
+    <span className="muted t-xs">Ctrl+Enter</span>
+    <button className="btn-primary btn-sm" onClick={sendCmt} disabled={loadingCmt||!newCmt.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button>
+  </div>
+</div>
     </div>}
     {tab==="bitacora"&&<div>{bitacora.length===0&&<div className="muted t-sm">Sin registros.</div>}
       {bitacora.map(b=>{const bp=allProfiles[b.user_id];return <div key={b.id} className="bitacora-item"><span style={{flexShrink:0,fontFamily:"monospace",fontSize:11}}>{fmtFull(b.created_at)}</span><span className="flex center gap4"><div className="avatar" style={{width:16,height:16,fontSize:7}}>{initials(bp)}</div><span className="bold">{bp?.nombre}</span><span>{b.action}</span>{b.detail&&<span className="accent">"{b.detail}"</span>}</span></div>;})}
