@@ -622,7 +622,7 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     
       if(t?.telegram_chat_id&&!notified.has(t.id)){
         notified.add(t.id);
-        await tgSend(t.telegram_chat_id,'💬 Mencionado en '+task.folio+': "'+text+'"');
+        const cleanText=text.replace(/@\[(([^ \]]+)[^\]]*)\]\((u_[^)]+)\)/g,"@$2").trim();await tgSend(t.telegram_chat_id,'💬 '+profile.nombre+' te mencionó en '+task.folio+': "'+cleanText+'"');
       }
     }
   
