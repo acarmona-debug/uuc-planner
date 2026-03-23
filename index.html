@@ -949,15 +949,27 @@ function CatConfigModal({cfg,profile,onClose,onSaved}){
   const[loading,setLoading]=useState(false);
   const add=()=>{const t=newCat.trim();if(t&&!cats.includes(t)){setCats(p=>[...p,t]);}setNewCat("");};
   const remove=c=>setCats(p=>p.filter(x=>x!==c));
-  const save=async()=>{
+  const save = async () => {
     setLoading(true);
-    const newCfg={...cfg,categories:cats};
-    await sb.from("user_config").upsert({
-        user_id: profile.id,
-        categories: cats
-});
-    toast("Categorías guardadas","success");
-    setLoading(false);onSaved(newCfg);onClose();
+    const newCfg = { ...cfg, categories: cats };
+  
+    const { error } = await sb
+      .from("user_config")
+      .upsert(
+        { user_id: profile.id, categories: cats },
+        { onConflict: "user_id" }
+      );
+  
+    setLoading(false);
+  
+    if (error) {
+      toast("Error al guardar: " + error.message, "error");
+      return;
+    }
+  
+    toast("Categorías guardadas", "success");
+    onSaved(newCfg);
+    onClose();
   };
   return <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
     <div className="modal-header"><span className="modal-title">⚙️ Categorías</span><button className="modal-close" onClick={onClose}>✕</button></div>
