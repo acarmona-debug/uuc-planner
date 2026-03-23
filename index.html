@@ -574,10 +574,13 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   };
   
   const insertMention=(p)=>{
-    const token=norm(p.nombre||p.apellido||"usuario").replace(/[^a-z0-9_]/g,"");
+    const full=((p.nombre||"")+" "+(p.apellido||"")).trim()||"Usuario";
+    const token="@["
+      +full.replace(/\]/g,"")
+      +"](u_"+p.id+")";
     const pre=newCmt.slice(0,mention.start);
     const post=newCmt.slice(mention.start+1+mention.query.length);
-    setNewCmt(pre+"@"+token+" "+post);
+    setNewCmt(pre+token+" "+post);
     setMention({open:false,query:"",start:-1,active:0});
   };
   const isOwner=task.owner_id===profile.id,isAdmin=profile.role==="admin",isGer=profile.role==="gerente"||isAdmin;
@@ -596,19 +599,33 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
     if(!newCmt.trim())return;
     setLoadingCmt(true);
     const text=newCmt.trim();
-    await sb.from("comments").insert({task_id:task.id,user_id:profile.id,content:text});
+  
+    await sb.from("comments").insert({
+      task_id:task.id,
+      user_id:profile.id,
+      content:text
+    });
+  
     setNewCmt("");
     setMention({open:false,query:"",start:-1,active:0});
   
-    const tags=[...text.matchAll(/@([^\s@]+)/g)].map(x=>norm(x[1]));
+    const idsFromRich=[...text.matchAll(/@\[[^\]]+\]\((u_[^)]+)\)/g)].map(x=>x[1]);
+    const tagsPlain=[...text.matchAll(/@\[[^\]]+\]/g)].map(x=>x[0].slice(1,-1));
     const notified=new Set();
-    for(const n of tags){
-      const t=Object.values(allProfiles).find(p=>norm(p.nombre)===n||norm(p.apellido)===n);
+  
+    for(const n of [...idsFromRich,...tagsPlain]){
+      const byId=Object.values(allProfiles).find(p=>("u_"+p.id)===n);
+      const byName=Object.values(allProfiles).find(
+        p=>norm(p.nombre)===norm(n)||norm(p.apellido)===norm(n)
+      );
+      const t=byId||byName;
+    
       if(t?.telegram_chat_id&&!notified.has(t.id)){
         notified.add(t.id);
         await tgSend(t.telegram_chat_id,'💬 Mencionado en '+task.folio+': "'+text+'"');
       }
     }
+  
     setLoadingCmt(false);
   };
 
@@ -713,7 +730,16 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
                 <span className="muted t-xs">{fmtFull(c.created_at)}</span>
               </div>
               <div style={{fontSize:13,lineHeight:1.5}}>
-                {c.content.split(/(@[^\s@]+)/g).map((p,i)=>p.startsWith("@")?<span key={i} className="comment-mention">{p}</span>:p)}
+              {c.content
+                .replace(/@\[[^\]]+\]\((u_[^)]+)\)/g,(m,uid)=>{
+                  const id=uid.slice(2);
+                  const up=allProfiles[id];
+                  const full=up?((up.nombre||"")+" "+(up.apellido||"")).trim():"";
+                  return full?("@"+full):m;
+                })
+                .split(/(@[^\s@]+)/g)
+                .map((p,i)=>p.startsWith("@")?<span key={i} className="comment-mention">{p}</span>:p)
+              }
               </div>
             </div>
           </div>;
