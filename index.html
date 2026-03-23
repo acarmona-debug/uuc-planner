@@ -1065,7 +1065,8 @@ function App(){
         ))}
       </div>
       <div className="flex center gap8">
-        {(profile.role==="admin"||profile.role==="gerente")&&<button className="btn-ghost btn-sm" onClick={()=>setShowAnn(true)}>📢</button>}{profile.role==="admin"&&<button className="btn-ghost btn-sm" onClick={()=>setShowCatCfg(true)}>⚙️</button>}
+        {(profile.role==="admin"||profile.role==="gerente")&&<button className="btn-ghost btn-sm" onClick={()=>setShowAnn(true)}>📢</button>}
+        <button className="btn-ghost btn-sm" onClick={()=>setShowCatCfg(true)}>⚙️</button>
         <div className="avatar" onClick={()=>setShowProfile(true)}>{initials(profile)}</div>
       </div>
     </div>
