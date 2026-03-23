@@ -543,7 +543,8 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   const[comments,setComments]=useState([]);
   const[bitacora,setBitacora]=useState([]);
   const[subtasks,setSubtasks]=useState([]);
-  const[newCmt,setNewCmt]=useState("");
+  const[newCmtView,setNewCmtView]=useState("");
+  const[newCmtRaw,setNewCmtRaw]=useState(""); 
   const[loadingCmt,setLoadingCmt]=useState(false);
   const[confirm,setConfirm]=useState(null);
   
@@ -575,10 +576,17 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   
   const insertMention=(p)=>{
     const first=(p.nombre||"Usuario").trim().split(/\s+/)[0].replace(/\]/g,"");
-    const token="@["+first+"](u_"+p.id+")";
-    const pre=newCmt.slice(0,mention.start);
-    const post=newCmt.slice(mention.start+1+mention.query.length);
-    setNewCmt(pre+token+" "+post);
+    const tokenView="@"+first;
+    const tokenRaw="@["+first+"](u_"+p.id+")";
+  
+    const preView=newCmtView.slice(0,mention.start);
+    const postView=newCmtView.slice(mention.start+1+mention.query.length);
+    setNewCmtView(preView+tokenView+" "+postView);
+  
+    const preRaw=newCmtRaw.slice(0,mention.start);
+    const postRaw=newCmtRaw.slice(mention.start+1+mention.query.length);
+    setNewCmtRaw(preRaw+tokenRaw+" "+postRaw);
+  
     setMention({open:false,query:"",start:-1,active:0});
   };
   const isOwner=task.owner_id===profile.id,isAdmin=profile.role==="admin",isGer=profile.role==="gerente"||isAdmin;
@@ -594,9 +602,9 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   },[task.id]);
 
   const sendCmt=async()=>{
-    if(!newCmt.trim())return;
+    if(!newCmtRaw.trim())return;
     setLoadingCmt(true);
-    const text=newCmt.trim();
+    const text=newCmtRaw.trim();
   
     await sb.from("comments").insert({
       task_id:task.id,
@@ -604,11 +612,12 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
       content:text
     });
   
-    setNewCmt("");
+    setNewCmtView("");
+    setNewCmtRaw("");
     setMention({open:false,query:"",start:-1,active:0});
   
     const idsFromRich=[...text.matchAll(/@\[[^\]]+\]\((u_[^)]+)\)/g)].map(x=>x[1]);
-    const tagsPlain=[...text.matchAll(/@\[[^\]]+\]/g)].map(x=>x[0].slice(1,-1));
+    const tagsPlain=[...text.matchAll(/@([^\s@]+)/g)].map(x=>x[1]);
     const notified=new Set();
   
     for(const n of [...idsFromRich,...tagsPlain]){
@@ -757,14 +766,25 @@ await tgSend(
         })}
       </div>
       <div style={{position:"relative"}}>
-  <textarea
-    value={newCmt}
-    onChange={e=>{
-      const v=e.target.value;
-      setNewCmt(v);
-      updateMentionState(v,e.target.selectionStart||v.length);
-    }}
-    placeholder="Comentario... @menciona"
+      <textarea
+      value={newCmtView}
+      onChange={e=>{
+        const v=e.target.value;
+        setNewCmtView(v);
+    
+        // Espejo simple view->raw mientras se escribe libre.
+        // Cuando se selecciona del dropdown, insertMention ya mete el token con u_id en raw.
+        setNewCmtRaw(prev=>{
+          // Si no hay menciones enriquecidas activas, espejo normal.
+          if(!/@\[[^\]]+\]\(u_[^)]+\)/.test(prev)) return v;
+          // Si ya hay menciones enriquecidas, evita pisarlas con texto plano.
+          return prev;
+        });
+        
+    
+        updateMentionState(v,e.target.selectionStart||v.length);
+      }}
+    placeholder="@menciona Comentario..."
     onKeyDown={e=>{
       if(mention.open&&mentionList.length){
         if(e.key==="ArrowDown"){e.preventDefault();setMention(m=>({...m,active:Math.min(m.active+1,mentionList.length-1)}));return;}
@@ -785,7 +805,7 @@ await tgSend(
   )}
   <div className="flex end gap8" style={{marginTop:6}}>
     <span className="muted t-xs">Ctrl+Enter</span>
-    <button className="btn-primary btn-sm" onClick={sendCmt} disabled={loadingCmt||!newCmt.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button>
+    <button className="btn-primary btn-sm" onClick={sendCmt} disabled={loadingCmt||!newCmtView.trim()}>{loadingCmt?<span className="spinner"/>:"Enviar"}</button>
   </div>
 </div>
     </div>}
