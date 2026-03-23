@@ -943,7 +943,7 @@ function AnnouncementsModal({profile,allProfiles,onClose}){
     </div>:<div className="muted t-sm">Sin permisos.</div>}
   </div></div>;
 }
-function CatConfigModal({cfg,onClose,onSaved}){
+function CatConfigModal({cfg,profile,onClose,onSaved}){
   const[cats,setCats]=useState([...(cfg?.categories||DEF_CFG.categories)]);
   const[newCat,setNewCat]=useState("");
   const[loading,setLoading]=useState(false);
@@ -952,7 +952,10 @@ function CatConfigModal({cfg,onClose,onSaved}){
   const save=async()=>{
     setLoading(true);
     const newCfg={...cfg,categories:cats};
-    await sb.from("app_config").upsert({key:CKEY,value:newCfg});
+    await sb.from("user_config").upsert({
+        user_id: profile.id,
+        categories: cats
+});
     toast("Categorías guardadas","success");
     setLoading(false);onSaved(newCfg);onClose();
   };
@@ -989,12 +992,19 @@ function App(){
 
   useEffect(()=>{
     if(!profile)return;
-    sb.from("app_config").select("*").eq("key",CKEY).single().then(({data})=>{if(data?.value)setCfg({...DEF_CFG,...data.value});});
+    sb.from("user_config").select("categories").eq("user_id", profile.id).maybeSingle().then(({ data }) => {
+    if (data?.categories) {
+      setCfg(prev => ({ ...prev, categories: data.categories }));
+    }
+  });
     sb.from("announcements").select("*").eq("active",true).order("created_at",{ascending:false}).limit(1).then(({data})=>{if(data?.[0]){setAnn(data[0].content);setAnnDismissed(false);}});
-    const ch=sb.channel("cfg-rt")
-      .on("postgres_changes",{event:"*",schema:"public",table:"app_config"},()=>{sb.from("app_config").select("*").eq("key",CKEY).single().then(({data})=>{if(data?.value)setCfg({...DEF_CFG,...data.value});});})
-      .on("postgres_changes",{event:"INSERT",schema:"public",table:"announcements"},({new:n})=>{if(n?.content){setAnn(n.content);setAnnDismissed(false);}})
-      .subscribe();
+    const ch = sb.channel("ann-rt")
+  .on(
+    "postgres_changes",
+    { event: "INSERT", schema: "public", table: "announcements" },
+    ({ new: n }) => { if (n?.content) { setAnn(n.content); setAnnDismissed(false); } }
+  )
+  .subscribe();
     return()=>sb.removeChannel(ch);
   },[profile?.id]);
 
@@ -1063,7 +1073,7 @@ function App(){
     {showProfile&&<ProfileMenu profile={profile} onClose={()=>setShowProfile(false)} onLogout={logout} onEdit={()=>setShowEditP(true)}/>}
     {showEditP&&<EditProfileModal profile={profile} onClose={()=>setShowEditP(false)} onSaved={u=>setProfile(p=>({...p,...u}))}/>}
     {showAnn&&<AnnouncementsModal profile={profile} allProfiles={allProfiles} onClose={()=>setShowAnn(false)}/>}
-    {showCatCfg&&<CatConfigModal cfg={cfg} onClose={()=>setShowCatCfg(false)} onSaved={newCfg=>setCfg(newCfg)}/>}
+    {showCatCfg&&<CatConfigModal cfg={cfg} profile={profile} onClose={()=>setShowCatCfg(false)} onSaved={newCfg=>setCfg(newCfg)}/>}
     <ToastContainer/>
   </div>;
 }
