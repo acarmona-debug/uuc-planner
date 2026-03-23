@@ -943,10 +943,43 @@ function AnnouncementsModal({profile,allProfiles,onClose}){
     </div>:<div className="muted t-sm">Sin permisos.</div>}
   </div></div>;
 }
-
+function CatConfigModal({cfg,onClose,onSaved}){
+  const[cats,setCats]=useState([...(cfg?.categories||DEF_CFG.categories)]);
+  const[newCat,setNewCat]=useState("");
+  const[loading,setLoading]=useState(false);
+  const add=()=>{const t=newCat.trim();if(t&&!cats.includes(t)){setCats(p=>[...p,t]);}setNewCat("");};
+  const remove=c=>setCats(p=>p.filter(x=>x!==c));
+  const save=async()=>{
+    setLoading(true);
+    const newCfg={...cfg,categories:cats};
+    await sb.from("app_config").upsert({key:CKEY,value:newCfg});
+    toast("Categorías guardadas","success");
+    setLoading(false);onSaved(newCfg);onClose();
+  };
+  return <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
+    <div className="modal-header"><span className="modal-title">⚙️ Categorías</span><button className="modal-close" onClick={onClose}>✕</button></div>
+    <div className="flex col gap12">
+      <div className="flex wrap gap6" style={{marginBottom:4}}>
+        {cats.map(c=><span key={c} className="tag" style={{fontSize:12,padding:"3px 10px"}}>
+          {c}<span className="tag-remove" onClick={()=>remove(c)}>✕</span>
+        </span>)}
+      </div>
+      <div className="flex gap8">
+        <input value={newCat} onChange={e=>setNewCat(e.target.value)} placeholder="Nueva categoría..."
+          onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();add();}}}/>
+        <button className="btn-secondary btn-sm" style={{flexShrink:0}} onClick={add}>+</button>
+      </div>
+      <div className="flex gap8 end">
+        <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+        <button className="btn-primary" onClick={save} disabled={loading}>{loading?<span className="spinner"/>:"Guardar"}</button>
+      </div>
+    </div>
+  </div></div>;
+}
 // ── app root ──────────────────────────────────────────────────────────────────
 function App(){
   const[session,setSession]=useState(null);const[profile,setProfile]=useState(null);const[allProfiles,setAllProfiles]=useState({});const[tasks,setTasks]=useState([]);const[cmtMap,setCmtMap]=useState({});const[cfg,setCfg]=useState(DEF_CFG);const[ann,setAnn]=useState(null);const[annDismissed,setAnnDismissed]=useState(false);const[loading,setLoading]=useState(true);const[tab,setTab]=useState("board");const[showProfile,setShowProfile]=useState(false);const[showEditP,setShowEditP]=useState(false);const[showAnn,setShowAnn]=useState(false);const[detailTask,setDetailTask]=useState(null);const[editTask,setEditTask]=useState(null);const[shareTask,setShareTask]=useState(null);
+  const[showCatCfg,setShowCatCfg]=useState(false);
   const profRef=useRef(null);
 
   useEffect(()=>{sb.auth.getSession().then(({data:{session}})=>{setSession(session);if(!session)setLoading(false);});const{data:{subscription}}=sb.auth.onAuthStateChange((_e,s)=>{setSession(s);if(!s){setProfile(null);setLoading(false);}});return()=>subscription.unsubscribe();},[]);
@@ -1010,7 +1043,7 @@ function App(){
         ))}
       </div>
       <div className="flex center gap8">
-        {(profile.role==="admin"||profile.role==="gerente")&&<button className="btn-ghost btn-sm" onClick={()=>setShowAnn(true)}>📢</button>}
+        {(profile.role==="admin"||profile.role==="gerente")&&<button className="btn-ghost btn-sm" onClick={()=>setShowAnn(true)}>📢</button>}{profile.role==="admin"&&<button className="btn-ghost btn-sm" onClick={()=>setShowCatCfg(true)}>⚙️</button>}
         <div className="avatar" onClick={()=>setShowProfile(true)}>{initials(profile)}</div>
       </div>
     </div>
@@ -1030,6 +1063,7 @@ function App(){
     {showProfile&&<ProfileMenu profile={profile} onClose={()=>setShowProfile(false)} onLogout={logout} onEdit={()=>setShowEditP(true)}/>}
     {showEditP&&<EditProfileModal profile={profile} onClose={()=>setShowEditP(false)} onSaved={u=>setProfile(p=>({...p,...u}))}/>}
     {showAnn&&<AnnouncementsModal profile={profile} allProfiles={allProfiles} onClose={()=>setShowAnn(false)}/>}
+    {showCatCfg&&<CatConfigModal cfg={cfg} onClose={()=>setShowCatCfg(false)} onSaved={newCfg=>setCfg(newCfg)}/>}
     <ToastContainer/>
   </div>;
 }
