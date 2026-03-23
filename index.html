@@ -574,10 +574,8 @@ function TaskDetailModal({task,profile,allProfiles,onClose,onSaved,onEdit,onShar
   };
   
   const insertMention=(p)=>{
-    const full=((p.nombre||"")+" "+(p.apellido||"")).trim()||"Usuario";
-    const token="@["
-      +full.replace(/\]/g,"")
-      +"](u_"+p.id+")";
+    const first=(p.nombre||"Usuario").trim().split(/\s+/)[0].replace(/\]/g,"");
+    const token="@["+first+"](u_"+p.id+")";
     const pre=newCmt.slice(0,mention.start);
     const post=newCmt.slice(mention.start+1+mention.query.length);
     setNewCmt(pre+token+" "+post);
@@ -781,7 +779,7 @@ await tgSend(
   {mention.open&&mentionList.length>0&&(
     <div style={{position:"absolute",left:0,right:0,bottom:"calc(100% + 6px)",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:"var(--radius)",maxHeight:180,overflowY:"auto",zIndex:20}}>
       {mentionList.map((p,i)=><button key={p.id} className="btn-ghost" style={{width:"100%",justifyContent:"flex-start",background:i===mention.active?"var(--bg3)":"transparent",borderRadius:0,padding:"8px 10px"}} onMouseDown={e=>e.preventDefault()} onClick={()=>insertMention(p)}>
-        @{norm(p.nombre||p.apellido||"usuario")} <span className="muted" style={{marginLeft:6}}>{p._full}</span>
+      @{(p.nombre||"usuario").split(/\s+/)[0]}
       </button>)}
     </div>
   )}
